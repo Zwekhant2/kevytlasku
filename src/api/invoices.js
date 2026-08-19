@@ -1,8 +1,13 @@
-// Mock data layer. Shaped exactly like the real API will be (async functions
-// returning promises) so swapping this for real fetch calls later is a
-// drop-in replacement — nothing that calls these functions has to change.
+// Mock data layer, backed by localStorage so it survives a reload. Shaped
+// exactly like the real API will be (async functions returning promises,
+// never returning a live reference to internal state) so swapping this for
+// real fetch calls to the .NET API later is a drop-in replacement — nothing
+// that calls these functions has to change.
 
-const mockInvoices = [
+const STORAGE_KEY = 'kevytlasku:invoices'
+const NETWORK_DELAY_MS = 150
+
+const seedInvoices = [
   {
     id: 'inv_001',
     invoiceNumber: 1001,
@@ -108,14 +113,35 @@ const mockInvoices = [
     dueDate: '2026-08-24',
     paymentTermDays: 14,
     status: 'sent',
-    lineItems: [
-      { id: 'li_1', description: 'Sähkötyöt, jatko', quantity: 8, unit: 'h', unitPrice: 65, vatRate: 25.5 },
-    ],
+    lineItems: [{ id: 'li_1', description: 'Sähkötyöt, jatko', quantity: 8, unit: 'h', unitPrice: 65, vatRate: 25.5 }],
     serviceFeeRate: 1.9,
   },
 ]
 
-const NETWORK_DELAY_MS = 150
+function loadInvoices() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (raw) return JSON.parse(raw)
+  } catch {
+    // localStorage can be unavailable (private browsing, quota) — fall
+    // through to the seed data below, the mock still works for the session.
+  }
+  return seedInvoices
+}
+
+function persist(invoices) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(invoices))
+  } catch {
+    // best-effort; see loadInvoices
+  }
+}
+
+// Module state, seeded from localStorage once when this module first loads.
+// Every write below replaces this with a new array (never mutated in
+// place) and re-persists it, so this "mock database" survives a reload the
+// same way a real one would.
+let mockInvoices = loadInvoices()
 
 function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms))
@@ -123,20 +149,21 @@ function delay(ms) {
 
 export async function getInvoices() {
   await delay(NETWORK_DELAY_MS)
-  return mockInvoices
+  return [...mockInvoices]
 }
 
 export async function getInvoice(id) {
   await delay(NETWORK_DELAY_MS)
   const invoice = mockInvoices.find((inv) => inv.id === id)
   if (!invoice) throw new Error(`Invoice ${id} not found`)
-  return invoice
+  return { ...invoice }
 }
 
 export async function createInvoice(invoice) {
   await delay(NETWORK_DELAY_MS)
   const withId = { ...invoice, id: `inv_${crypto.randomUUID()}` }
-  mockInvoices.unshift(withId)
+  mockInvoices = [withId, ...mockInvoices]
+  persist(mockInvoices)
   return withId
 }
 
@@ -144,6 +171,8 @@ export async function updateInvoice(id, patch) {
   await delay(NETWORK_DELAY_MS)
   const index = mockInvoices.findIndex((inv) => inv.id === id)
   if (index === -1) throw new Error(`Invoice ${id} not found`)
-  mockInvoices[index] = { ...mockInvoices[index], ...patch }
-  return mockInvoices[index]
+  const updated = { ...mockInvoices[index], ...patch }
+  mockInvoices = mockInvoices.map((inv, i) => (i === index ? updated : inv))
+  persist(mockInvoices)
+  return updated
 }
