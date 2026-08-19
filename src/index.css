@@ -94,3 +94,182 @@ h3 {
     padding: 32px 32px 56px;
   }
 }
+
+/* ─── Buttons & links ────────────────────────────────────────── */
+.button,
+button {
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.button {
+  display: inline-block;
+  text-decoration: none;
+  background: var(--accent);
+  color: var(--accent-ink);
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: none;
+}
+
+/* ─── List controls: search + status filter ─────────────────── */
+.list-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.list-controls input[type='search'] {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 14px;
+  width: 100%;
+}
+
+.status-filter {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.status-filter button {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 14px;
+  cursor: pointer;
+  color: var(--ink-2);
+}
+
+.status-filter button.active {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+
+@media (min-width: 768px) {
+  .list-controls {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .list-controls input[type='search'] {
+    width: 260px;
+  }
+}
+
+/* ─── Status badge ───────────────────────────────────────────── */
+.status-badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.status-badge--draft {
+  background: #eceef1;
+  color: var(--ink-2);
+}
+
+.status-badge--sent {
+  background: #e3edff;
+  color: #1650c4;
+}
+
+.status-badge--paid {
+  background: #e2f6e9;
+  color: var(--success);
+}
+
+.status-badge--overdue {
+  background: #fbe4e1;
+  color: var(--danger);
+}
+
+/* ─── Invoice table ───────────────────────────────────────────── */
+/* Temporary mobile treatment: horizontal scroll so every column stays
+   reachable. Day 7 replaces this with real stacked cards below 768px. */
+.invoice-table-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.invoice-table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+  background: var(--paper);
+}
+
+.invoice-table th,
+.invoice-table td {
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+
+.invoice-table thead th {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-2);
+  background: var(--paper-2);
+}
+
+.invoice-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.invoice-table .amount-cell {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Empty / error / loading states ─────────────────────────── */
+.list-status {
+  color: var(--ink-2);
+  padding: 24px 0;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px 16px;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  background: var(--paper);
+}
+
+.empty-state-title {
+  font-weight: 600;
+  margin: 0 0 6px;
+}
+
+.empty-state-message {
+  color: var(--ink-2);
+  margin: 0 0 16px;
+}
+
+.error-message {
+  border: 1px solid var(--danger);
+  background: #fdf0ef;
+  color: var(--danger);
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.error-message button {
+  margin-top: 8px;
+  background: var(--danger);
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
