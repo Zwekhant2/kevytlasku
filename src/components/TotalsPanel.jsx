@@ -1,14 +1,6 @@
 import { invoiceTotals } from '../lib/calc'
 import { formatCurrency } from '../lib/format'
-
-// Line items store raw input strings (see LineItemEditor's numeric-input
-// handling) so a cleared field doesn't visibly snap back to "0" while the
-// user is still typing. calc.js expects clean numbers, so coercion happens
-// here, at the boundary — never written back into the editor's own state.
-function toNumber(raw) {
-  const n = Number(raw)
-  return Number.isFinite(n) ? n : 0
-}
+import { toNumber } from '../lib/toNumber'
 
 export default function TotalsPanel({ items, serviceFeeRate }) {
   const numericItems = items.map((item) => ({
