@@ -18,13 +18,16 @@ will grow with the project; right now it reflects what actually exists, not the 
   10% lines and must show each separately), and the service fee computed on the net amount
 - 7 passing Vitest unit tests on the calculation module, including the classic
   floating-point rounding trap (`1.005 * 100` is not `100.5` in IEEE 754)
+- Invoice list wired to a mock API (`src/api/invoices.js`) with status filter, client-name
+  search, and real loading / error / empty states — not just the happy path
+- A temporary horizontal-scroll table on narrow screens, so nothing is unreachable before the
+  Day 7 responsive pass replaces it with real stacked cards
 
 ## Coming next
 
-Invoice list against mock data → line-item editor (`useReducer`, dynamic rows, live totals) →
-full create/edit form → dashboard summary cards and print-friendly detail view → a small .NET 8
-minimal API + SQLite for real persistence → responsive pass (table becomes cards under 768px) →
-deploy.
+Line-item editor (`useReducer`, dynamic rows, live totals) → full create/edit form → dashboard
+summary cards and print-friendly detail view → a small .NET 8 minimal API + SQLite for real
+persistence → responsive pass (table becomes cards under 768px) → deploy.
 
 ## Running it locally
 
