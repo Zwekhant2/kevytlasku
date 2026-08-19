@@ -503,3 +503,203 @@ button {
     grid-column: span 2;
   }
 }
+
+.button--outline {
+  background: none;
+  color: var(--accent);
+  border: 1.5px solid var(--accent);
+}
+
+.button--outline:hover {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+/* ─── Dashboard summary cards ─────────────────────────────────── */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.summary-card {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.summary-card-label {
+  margin: 0 0 6px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-2);
+}
+
+.summary-card-value {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.summary-card--danger .summary-card-value {
+  color: var(--danger);
+}
+
+.summary-card-hint {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--ink-2);
+}
+
+@media (min-width: 640px) {
+  .summary-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 960px) {
+  .summary-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+/* ─── Invoice detail ──────────────────────────────────────────── */
+.invoice-detail-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.invoice-detail-toolbar a:first-child {
+  color: var(--ink-2);
+  font-size: 14px;
+}
+
+.invoice-detail-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.invoice-detail-sheet {
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.invoice-detail-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.invoice-detail-header h1 {
+  display: inline-block;
+  margin-right: 10px;
+  font-size: 22px;
+}
+
+.invoice-detail-dates {
+  display: flex;
+  gap: 24px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.invoice-detail-dates strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.invoice-detail-client {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.invoice-detail-label {
+  margin: 0 0 4px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-2);
+}
+
+.invoice-detail-client-name {
+  font-weight: 600;
+  font-size: 16px;
+  margin: 0 0 2px;
+}
+
+.detail-line-items {
+  min-width: 560px;
+}
+
+.invoice-detail-totals {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.invoice-detail-totals .totals-panel {
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .invoice-detail-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .invoice-detail-totals .totals-panel {
+    width: 320px;
+  }
+}
+
+/* ─── Print stylesheet ────────────────────────────────────────── */
+@media print {
+  .app-header,
+  .invoice-detail-toolbar,
+  .hamburger,
+  .mob-menu {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  .app-main {
+    padding: 0;
+    max-width: none;
+  }
+
+  .invoice-detail-sheet {
+    border: none;
+    padding: 0;
+  }
+
+  .invoice-table-scroll {
+    overflow: visible;
+    border: none;
+  }
+
+  .detail-line-items {
+    min-width: 0;
+  }
+
+  .invoice-detail-totals .totals-panel {
+    border: none;
+    padding: 0;
+  }
+}
