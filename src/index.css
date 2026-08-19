@@ -1,0 +1,96 @@
+/* Mobile-first: base styles target phones, @media (min-width: ...) adds
+   layout for wider screens. Plain CSS on purpose — no framework. */
+
+:root {
+  --ink: #16181f;
+  --ink-2: #565b66;
+  --paper: #ffffff;
+  --paper-2: #f5f6f8;
+  --border: #e2e4e9;
+  --accent: #0b5fff;
+  --accent-ink: #ffffff;
+  --danger: #c0392b;
+  --success: #1f8a4c;
+  --font: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --mono: ui-monospace, Consolas, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  color: var(--ink);
+  background: var(--paper-2);
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3 {
+  color: var(--ink);
+  margin: 0 0 8px;
+}
+
+.app-shell {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  background: var(--paper);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.app-brand {
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.app-nav {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.app-nav a {
+  color: var(--ink-2);
+  text-decoration: none;
+  font-size: 14px;
+  padding: 4px 0;
+  border-bottom: 2px solid transparent;
+}
+
+.app-nav a.active,
+.app-nav a[aria-current='page'] {
+  color: var(--ink);
+  border-bottom-color: var(--accent);
+}
+
+.app-main {
+  flex: 1;
+  padding: 20px 16px 40px;
+  max-width: 960px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .app-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 32px;
+  }
+
+  .app-main {
+    padding: 32px 32px 56px;
+  }
+}
