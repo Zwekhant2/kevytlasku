@@ -22,12 +22,20 @@ will grow with the project; right now it reflects what actually exists, not the 
   search, and real loading / error / empty states — not just the happy path
 - A temporary horizontal-scroll table on narrow screens, so nothing is unreachable before the
   Day 7 responsive pass replaces it with real stacked cards
+- `LineItemEditor` — add/remove/edit line items via a `useReducer` (`src/lib/lineItemsReducer.js`),
+  keyed by each item's own id (never array index, so removing a row can't scramble the others),
+  with numeric fields that store the raw typed value and only coerce to a number at calculation
+  time — so clearing a price field doesn't visibly snap back to "0" mid-edit
+- `TotalsPanel` — net, VAT broken out per rate, gross, service fee, and payout, recomputed live
+  from the line items on every keystroke via `calc.js`
+- 5 more unit tests on the reducer (12 total), including one that pins down the
+  clear-to-empty-string behaviour so a regression would fail loudly
 
 ## Coming next
 
-Line-item editor (`useReducer`, dynamic rows, live totals) → full create/edit form → dashboard
-summary cards and print-friendly detail view → a small .NET 8 minimal API + SQLite for real
-persistence → responsive pass (table becomes cards under 768px) → deploy.
+Full create/edit form (client details, dates, save) → dashboard summary cards and
+print-friendly detail view → a small .NET 8 minimal API + SQLite for real persistence →
+responsive pass (table becomes cards under 768px) → deploy.
 
 ## Running it locally
 
@@ -61,3 +69,6 @@ production billing system.
   invoicing software.
 - **No Redux, no Tailwind, no UI kit.** `useState`/`useReducer` and hand-written CSS are enough
   at this size, and using them directly is more honest about what's actually being demonstrated.
+- **`useReducer` for line items, not five `useState` calls.** Add/remove/update all transform
+  the same array, so keeping that logic in one reducer makes it testable on its own — see
+  `src/lib/lineItemsReducer.test.js` — independent of whether the component even renders.
