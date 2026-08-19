@@ -53,6 +53,7 @@ export default function InvoiceList() {
       <div className="list-controls">
         <input
           type="search"
+          className="input"
           placeholder="Search by client name…"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}

@@ -120,11 +120,25 @@ button {
   margin-bottom: 16px;
 }
 
-.list-controls input[type='search'] {
+.input,
+.select {
   padding: 8px 12px;
   border: 1px solid var(--border);
   border-radius: 6px;
   font-size: 14px;
+  font-family: inherit;
+  background: var(--paper);
+  color: var(--ink);
+  width: 100%;
+}
+
+.input:focus,
+.select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.list-controls .input {
   width: 100%;
 }
 
@@ -272,4 +286,152 @@ button {
   padding: 6px 14px;
   border-radius: 6px;
   cursor: pointer;
+}
+
+/* ─── Invoice form layout ────────────────────────────────────── */
+.form-note {
+  color: var(--ink-2);
+  margin: 0 0 20px;
+}
+
+.form-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+@media (min-width: 900px) {
+  .form-layout {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .line-item-editor {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .totals-panel {
+    width: 300px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 16px;
+  }
+}
+
+/* ─── Line item editor ───────────────────────────────────────── */
+.line-item-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.line-item-empty {
+  color: var(--ink-2);
+  margin: 0;
+}
+
+.line-item-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--paper);
+}
+
+@media (min-width: 640px) {
+  .line-item-row {
+    grid-template-columns: 2fr 70px 70px 110px 130px 32px;
+    align-items: center;
+  }
+}
+
+.li-quantity,
+.li-price {
+  text-align: right;
+}
+
+.li-remove {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  width: 32px;
+  height: 32px;
+  color: var(--ink-2);
+  cursor: pointer;
+  justify-self: end;
+}
+
+.li-remove:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.button--ghost {
+  align-self: flex-start;
+  background: none;
+  border: 1px dashed var(--border);
+  color: var(--ink-2);
+  border-radius: 6px;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+.button--ghost:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ─── Totals panel ────────────────────────────────────────────── */
+.totals-panel {
+  margin: 0;
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.totals-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 6px 0;
+  gap: 12px;
+}
+
+.totals-row dt {
+  color: var(--ink-2);
+  font-size: 13px;
+}
+
+.totals-row dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.totals-row--sub dt,
+.totals-row--sub dd {
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.totals-row--strong {
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+  padding-top: 10px;
+  font-weight: 600;
+}
+
+.totals-row--payout {
+  margin-top: 10px;
+  padding: 10px;
+  background: var(--paper-2);
+  border-radius: 6px;
+  font-weight: 700;
+}
+
+.totals-row--payout dt {
+  color: var(--ink);
 }
