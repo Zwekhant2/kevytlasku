@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { getInvoices } from '../api/invoices'
+import { useMemo, useState } from 'react'
+import { useInvoices } from '../context/InvoiceContext'
 import InvoiceTable from '../components/InvoiceTable'
 import EmptyState from '../components/EmptyState'
 import ErrorMessage from '../components/ErrorMessage'
@@ -13,26 +13,9 @@ const STATUS_FILTERS = [
 ]
 
 export default function InvoiceList() {
-  const [invoices, setInvoices] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const { invoices, loading, error, refresh } = useInvoices()
   const [statusFilter, setStatusFilter] = useState('all')
   const [searchTerm, setSearchTerm] = useState('')
-
-  const loadInvoices = useCallback(() => {
-    setLoading(true)
-    setError(null)
-    getInvoices()
-      .then(setInvoices)
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false))
-  }, [])
-
-  // Fetching on mount synchronizes with an external system (the API) — the
-  // sanctioned use of an effect, not state derived from props/state.
-  useEffect(() => {
-    loadInvoices()
-  }, [loadInvoices])
 
   const filteredInvoices = useMemo(() => {
     const term = searchTerm.trim().toLowerCase()
@@ -75,7 +58,7 @@ export default function InvoiceList() {
 
       {loading && <p className="list-status">Loading invoices…</p>}
 
-      {!loading && error && <ErrorMessage message={`Couldn't load invoices: ${error}`} onRetry={loadInvoices} />}
+      {!loading && error && <ErrorMessage message={`Couldn't load invoices: ${error}`} onRetry={refresh} />}
 
       {!loading && !error && filteredInvoices.length > 0 && <InvoiceTable invoices={filteredInvoices} />}
 
