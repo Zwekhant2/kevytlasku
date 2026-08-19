@@ -30,12 +30,20 @@ will grow with the project; right now it reflects what actually exists, not the 
   from the line items on every keystroke via `calc.js`
 - 5 more unit tests on the reducer (12 total), including one that pins down the
   clear-to-empty-string behaviour so a regression would fail loudly
+- Full create/edit form: client details, issue date + payment term (due date is derived from
+  the two, never independently editable, so it can't drift out of sync), a status field in edit
+  mode, and a real Save that goes through Context into the mock API
+- `InvoiceContext` (`src/context/InvoiceContext.jsx`) as the single source of truth for invoice
+  state — the list, the form, and the detail page all read from the same place, so creating or
+  editing an invoice is reflected everywhere immediately, no manual refetching
+- localStorage persistence, owned by the mock API itself (`src/api/invoices.js`) rather than by
+  Context — so Day 6 can swap the mock's internals for real HTTP calls to the .NET API without
+  touching Context, the form, or any other component
 
 ## Coming next
 
-Full create/edit form (client details, dates, save) → dashboard summary cards and
-print-friendly detail view → a small .NET 8 minimal API + SQLite for real persistence →
-responsive pass (table becomes cards under 768px) → deploy.
+Dashboard summary cards and a print-friendly detail view → a small .NET 8 minimal API + SQLite
+for real persistence → responsive pass (table becomes cards under 768px) → deploy.
 
 ## Running it locally
 
@@ -72,3 +80,12 @@ production billing system.
 - **`useReducer` for line items, not five `useState` calls.** Add/remove/update all transform
   the same array, so keeping that logic in one reducer makes it testable on its own — see
   `src/lib/lineItemsReducer.test.js` — independent of whether the component even renders.
+- **The invoice form is keyed by invoice id.** `useReducer`/`useState` only read their initial
+  value on mount, so a single long-lived form component would either start empty if the invoice
+  hadn't loaded yet (a real race on a direct link to an edit URL) or leak stale state when
+  navigating from editing one invoice straight to another. Splitting the route into a thin outer
+  component (resolves loading/not-found first) and a `key={id}`-ed inner one forces a clean
+  remount instead, with correct initial values, every time.
+- **The mock API persists to localStorage, not the Context.** That keeps persistence entirely
+  inside `src/api/invoices.js`, which is also the only file Day 6 will touch to swap the mock
+  for real HTTP calls — Context, the form, and the list don't change at all.
