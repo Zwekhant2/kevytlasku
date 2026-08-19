@@ -435,3 +435,71 @@ button {
 .totals-row--payout dt {
   color: var(--ink);
 }
+
+/* ─── Invoice form: client + dates sections ──────────────────── */
+.invoice-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-section {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 0;
+  background: var(--paper);
+}
+
+.form-section legend {
+  padding: 0 6px;
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--ink-2);
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.field .input,
+.field .select {
+  color: var(--ink);
+}
+
+.field .input:disabled {
+  background: var(--paper-2);
+  color: var(--ink-2);
+}
+
+@media (min-width: 640px) {
+  .field-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .field--wide {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 900px) {
+  .field-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .field--wide {
+    grid-column: span 2;
+  }
+}
