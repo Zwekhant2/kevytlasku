@@ -30,3 +30,14 @@ export function addDays(isoDate, days) {
   date.setDate(date.getDate() + days)
   return date.toISOString().slice(0, 10)
 }
+
+/** "August 2026" for a Date, defaulting to now — used for dashboard labels. */
+export function formatMonthLabel(date = new Date()) {
+  return new Intl.DateTimeFormat('en-GB', { month: 'long', year: 'numeric' }).format(date)
+}
+
+/** True if an ISO date string falls in the same calendar month/year as `date`. */
+export function isSameMonth(isoDate, date = new Date()) {
+  const d = new Date(`${isoDate}T00:00:00`)
+  return d.getFullYear() === date.getFullYear() && d.getMonth() === date.getMonth()
+}
