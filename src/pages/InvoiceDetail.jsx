@@ -1,7 +1,9 @@
 import { Link, useParams } from 'react-router-dom'
 import { useInvoices } from '../context/InvoiceContext'
-import { invoiceTotals } from '../lib/calc'
-import { formatCurrency } from '../lib/format'
+import { lineNet } from '../lib/calc'
+import { formatCurrency, formatDate } from '../lib/format'
+import StatusBadge from '../components/StatusBadge'
+import TotalsPanel from '../components/TotalsPanel'
 import ErrorMessage from '../components/ErrorMessage'
 
 export default function InvoiceDetail() {
@@ -18,20 +20,79 @@ export default function InvoiceDetail() {
     return <ErrorMessage message={`Invoice ${id} was not found.`} />
   }
 
-  const { gross } = invoiceTotals(invoice)
-
   return (
-    <section>
-      <h1>
-        Invoice #{invoice.invoiceNumber} — {invoice.client.name}
-      </h1>
-      <p>
-        Status: {invoice.status} · Total: {formatCurrency(gross)}
-      </p>
-      <p>The full print-friendly layout and totals breakdown land here on Day 5.</p>
-      <Link className="button" to={`/invoices/${invoice.id}/edit`}>
-        Edit invoice
-      </Link>
+    <section className="invoice-detail">
+      <div className="invoice-detail-toolbar">
+        <Link to="/invoices">&larr; Back to invoices</Link>
+        <div className="invoice-detail-actions">
+          <Link className="button button--outline" to={`/invoices/${invoice.id}/edit`}>
+            Edit
+          </Link>
+          <button type="button" className="button" onClick={() => window.print()}>
+            Print
+          </button>
+        </div>
+      </div>
+
+      <div className="invoice-detail-sheet">
+        <header className="invoice-detail-header">
+          <div>
+            <h1>Invoice #{invoice.invoiceNumber}</h1>
+            <StatusBadge status={invoice.status} />
+          </div>
+          <div className="invoice-detail-dates">
+            <p>
+              Issued <strong>{formatDate(invoice.issueDate)}</strong>
+            </p>
+            <p>
+              Due <strong>{formatDate(invoice.dueDate)}</strong>
+            </p>
+          </div>
+        </header>
+
+        <div className="invoice-detail-client">
+          <p className="invoice-detail-label">Bill to</p>
+          <p className="invoice-detail-client-name">{invoice.client.name}</p>
+          {invoice.client.businessId && <p>Y-tunnus {invoice.client.businessId}</p>}
+          {invoice.client.address && <p>{invoice.client.address}</p>}
+          {invoice.client.email && <p>{invoice.client.email}</p>}
+        </div>
+
+        <div className="invoice-table-scroll">
+          <table className="invoice-table detail-line-items">
+            <thead>
+              <tr>
+                <th>Description</th>
+                <th>Qty</th>
+                <th>Unit</th>
+                <th>Unit price</th>
+                <th>VAT</th>
+                <th>Net</th>
+              </tr>
+            </thead>
+            <tbody>
+              {invoice.lineItems.map((item) => (
+                <tr key={item.id}>
+                  <td data-label="Description">{item.description}</td>
+                  <td data-label="Qty">{item.quantity}</td>
+                  <td data-label="Unit">{item.unit}</td>
+                  <td data-label="Unit price" className="amount-cell">
+                    {formatCurrency(item.unitPrice)}
+                  </td>
+                  <td data-label="VAT">{item.vatRate}%</td>
+                  <td data-label="Net" className="amount-cell">
+                    {formatCurrency(lineNet(item))}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="invoice-detail-totals">
+          <TotalsPanel items={invoice.lineItems} serviceFeeRate={invoice.serviceFeeRate} />
+        </div>
+      </div>
     </section>
   )
 }
