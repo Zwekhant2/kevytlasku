@@ -39,11 +39,15 @@ will grow with the project; right now it reflects what actually exists, not the 
 - localStorage persistence, owned by the mock API itself (`src/api/invoices.js`) rather than by
   Context — so Day 6 can swap the mock's internals for real HTTP calls to the .NET API without
   touching Context, the form, or any other component
+- Dashboard summary cards: outstanding (sent + overdue), paid this month, and a count per status
+- A full invoice detail view — client info, a per-line breakdown (qty, unit price, VAT rate, net),
+  and the same `TotalsPanel` the form uses — plus a print stylesheet that hides the nav and
+  toolbar and lets the invoice itself fill the page
 
 ## Coming next
 
-Dashboard summary cards and a print-friendly detail view → a small .NET 8 minimal API + SQLite
-for real persistence → responsive pass (table becomes cards under 768px) → deploy.
+A small .NET 8 minimal API + SQLite for real persistence → responsive pass (table becomes cards
+under 768px) → deploy.
 
 ## Running it locally
 
@@ -89,3 +93,6 @@ production billing system.
 - **The mock API persists to localStorage, not the Context.** That keeps persistence entirely
   inside `src/api/invoices.js`, which is also the only file Day 6 will touch to swap the mock
   for real HTTP calls — Context, the form, and the list don't change at all.
+- **"Paid this month" is approximated from `issueDate`.** The data model doesn't have a separate
+  "paid on" date, so this is a deliberate simplification, not an oversight — a real system would
+  record the actual payment date and use that instead.
