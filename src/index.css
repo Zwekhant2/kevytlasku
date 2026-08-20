@@ -341,6 +341,15 @@ button {
   color: var(--danger);
 }
 
+.status-badge--overdue::before {
+  animation: badgePulse 1.8s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.45); }
+  50% { box-shadow: 0 0 0 5px rgba(220, 38, 38, 0); }
+}
+
 /* ─── Invoice table ───────────────────────────────────────────── */
 .invoice-table-scroll {
   overflow-x: auto;
@@ -1006,6 +1015,106 @@ button {
 
   .invoice-detail-totals .totals-panel {
     width: 320px;
+  }
+}
+
+/* ─── Page transitions ────────────────────────────────────────── */
+/* Each route is a distinct component, so it fully mounts on navigation —
+   this plays automatically every time, no router-level transition plumbing
+   needed. */
+.page-enter {
+  animation: pageEnter 0.4s var(--ease) both;
+}
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ─── Skeleton loading state ─────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(100deg, var(--paper-3) 30%, var(--paper-2) 45%, var(--paper-3) 60%);
+  background-size: 250% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+.skeleton-text {
+  display: block;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ─── Toasts ──────────────────────────────────────────────────── */
+.toast-stack {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  left: 20px;
+  z-index: 300;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 10px;
+  pointer-events: none;
+}
+
+.toast {
+  align-self: flex-end;
+  max-width: 340px;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-md);
+  font-size: 14px;
+  font-weight: 500;
+  animation: toastIn 0.3s var(--ease) both;
+}
+
+.toast--success {
+  background: #064e3b;
+}
+
+@keyframes toastIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (min-width: 640px) {
+  .toast-stack {
+    left: auto;
+    width: 340px;
+  }
+}
+
+/* ─── Reduced motion ──────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
