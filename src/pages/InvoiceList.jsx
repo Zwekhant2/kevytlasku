@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useInvoices } from '../context/InvoiceContext'
+import { invoiceTotals } from '../lib/calc'
 import InvoiceTable from '../components/InvoiceTable'
 import EmptyState from '../components/EmptyState'
 import ErrorMessage from '../components/ErrorMessage'
@@ -12,10 +13,23 @@ const STATUS_FILTERS = [
   { value: 'overdue', label: 'Overdue' },
 ]
 
+// One accessor per sortable column, plus the direction a first click on
+// that column should sort in — newest/largest first for dates and money,
+// A→Z for text, so the first click always does the useful thing.
+const SORT_COLUMNS = {
+  invoiceNumber: { value: (invoice) => invoice.invoiceNumber, firstDirection: 'desc' },
+  client: { value: (invoice) => invoice.client.name.toLowerCase(), firstDirection: 'asc' },
+  issueDate: { value: (invoice) => invoice.issueDate, firstDirection: 'desc' },
+  dueDate: { value: (invoice) => invoice.dueDate, firstDirection: 'desc' },
+  status: { value: (invoice) => invoice.status, firstDirection: 'asc' },
+  amount: { value: (invoice) => invoiceTotals(invoice).gross, firstDirection: 'desc' },
+}
+
 export default function InvoiceList() {
   const { invoices, loading, error, refresh } = useInvoices()
   const [statusFilter, setStatusFilter] = useState('all')
   const [searchTerm, setSearchTerm] = useState('')
+  const [sort, setSort] = useState({ key: 'issueDate', direction: 'desc' })
 
   const filteredInvoices = useMemo(() => {
     const term = searchTerm.trim().toLowerCase()
@@ -25,6 +39,27 @@ export default function InvoiceList() {
       return matchesStatus && matchesSearch
     })
   }, [invoices, statusFilter, searchTerm])
+
+  const sortedInvoices = useMemo(() => {
+    const { value } = SORT_COLUMNS[sort.key]
+    const sorted = [...filteredInvoices].sort((a, b) => {
+      const av = value(a)
+      const bv = value(b)
+      if (av < bv) return -1
+      if (av > bv) return 1
+      return 0
+    })
+    return sort.direction === 'desc' ? sorted.reverse() : sorted
+  }, [filteredInvoices, sort])
+
+  function toggleSort(key) {
+    setSort((prev) => {
+      if (prev.key === key) {
+        return { key, direction: prev.direction === 'asc' ? 'desc' : 'asc' }
+      }
+      return { key, direction: SORT_COLUMNS[key].firstDirection }
+    })
+  }
 
   const hasAnyInvoices = invoices.length > 0
   const hasFiltersActive = statusFilter !== 'all' || searchTerm.trim() !== ''
@@ -84,7 +119,7 @@ export default function InvoiceList() {
 
       {!loading && error && <ErrorMessage message={`Couldn't load invoices: ${error}`} onRetry={refresh} />}
 
-      {!loading && !error && filteredInvoices.length > 0 && <InvoiceTable invoices={filteredInvoices} />}
+      {!loading && !error && sortedInvoices.length > 0 && <InvoiceTable invoices={sortedInvoices} sort={sort} onSort={toggleSort} />}
 
       {!loading && !error && filteredInvoices.length === 0 && !hasAnyInvoices && (
         <EmptyState

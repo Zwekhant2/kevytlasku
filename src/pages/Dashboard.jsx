@@ -1,9 +1,10 @@
 import { useMemo } from 'react'
 import { useInvoices } from '../context/InvoiceContext'
 import { useCountUp } from '../hooks/useCountUp'
-import { invoiceTotals } from '../lib/calc'
+import { invoiceTotals, monthlyTotals } from '../lib/calc'
 import { formatCurrency, formatMonthLabel, isSameMonth } from '../lib/format'
 import SummaryCard from '../components/SummaryCard'
+import RevenueChart from '../components/RevenueChart'
 import ErrorMessage from '../components/ErrorMessage'
 
 const STATUS_ORDER = ['draft', 'sent', 'paid', 'overdue']
@@ -33,6 +34,8 @@ export default function Dashboard() {
     return { counts, outstanding, paidThisMonth }
   }, [invoices])
 
+  const monthly = useMemo(() => monthlyTotals(invoices), [invoices])
+
   // Hooks must run unconditionally every render, so these sit above the
   // loading/error early returns below — each is a fixed, named value rather
   // than a loop over STATUS_ORDER, since calling a hook inside a .map() is
@@ -58,6 +61,7 @@ export default function Dashboard() {
       {loading ? (
         <>
           <div className="hero-balance hero-balance--skeleton skeleton" aria-hidden="true" />
+          <div className="revenue-chart-card revenue-chart-card--skeleton skeleton" aria-hidden="true" />
           <div className="summary-grid">
             {Array.from({ length: 4 }).map((_, i) => (
               <div className="summary-card" key={i} aria-hidden="true">
@@ -90,6 +94,8 @@ export default function Dashboard() {
               </div>
             </div>
           </div>
+
+          <RevenueChart months={monthly} />
 
           <div className="summary-grid">
             {STATUS_ORDER.map((status) => (

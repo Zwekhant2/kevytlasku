@@ -55,6 +55,27 @@ export function invoiceTotals(invoice) {
   return { net, vatByRate, vatTotal, gross, serviceFee, payout }
 }
 
+/**
+ * Gross invoiced total per calendar month, for the trailing `monthsBack`
+ * months including the current one — oldest first, so it plots left to
+ * right. Months with no invoices still appear, at 0.
+ */
+export function monthlyTotals(invoices, monthsBack = 6) {
+  const now = new Date()
+  const months = Array.from({ length: monthsBack }, (_, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() - (monthsBack - 1 - i), 1)
+    return { year: d.getFullYear(), month: d.getMonth(), total: 0 }
+  })
+
+  for (const invoice of invoices) {
+    const issued = new Date(`${invoice.issueDate}T00:00:00`)
+    const bucket = months.find((m) => m.year === issued.getFullYear() && m.month === issued.getMonth())
+    if (bucket) bucket.total = round2(bucket.total + invoiceTotals(invoice).gross)
+  }
+
+  return months
+}
+
 export const VAT_RATES = [
   { rate: 25.5, label: '25.5% (yleinen / standard)' },
   { rate: 14, label: '14% (elintarvikkeet / food)' },

@@ -1,17 +1,33 @@
 import InvoiceRow from './InvoiceRow'
 
-export default function InvoiceTable({ invoices }) {
+const COLUMNS = [
+  { key: 'invoiceNumber', label: 'Invoice' },
+  { key: 'client', label: 'Client' },
+  { key: 'issueDate', label: 'Issued' },
+  { key: 'dueDate', label: 'Due' },
+  { key: 'status', label: 'Status' },
+  { key: 'amount', label: 'Amount' },
+]
+
+export default function InvoiceTable({ invoices, sort, onSort }) {
   return (
     <div className="invoice-table-scroll">
       <table className="invoice-table">
         <thead>
           <tr>
-            <th>Invoice</th>
-            <th>Client</th>
-            <th>Issued</th>
-            <th>Due</th>
-            <th>Status</th>
-            <th>Amount</th>
+            {COLUMNS.map((column) => {
+              const active = sort.key === column.key
+              return (
+                <th key={column.key} aria-sort={active ? (sort.direction === 'asc' ? 'ascending' : 'descending') : 'none'}>
+                  <button type="button" className="sort-button" onClick={() => onSort(column.key)}>
+                    {column.label}
+                    <span className={`sort-indicator${active ? ' sort-indicator--active' : ''}`} aria-hidden="true">
+                      {active && sort.direction === 'asc' ? '↑' : '↓'}
+                    </span>
+                  </button>
+                </th>
+              )
+            })}
           </tr>
         </thead>
         <tbody>
