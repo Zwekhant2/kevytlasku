@@ -9,6 +9,9 @@ const NAV_ITEMS = [
 export default function Layout() {
   return (
     <div className="app-shell">
+      <a href="#main-content" className="skip-link">
+        Skip to content
+      </a>
       <header className="app-header">
         <span className="app-brand">kevytlasku</span>
         <nav className="app-nav" aria-label="Main navigation">
@@ -19,7 +22,7 @@ export default function Layout() {
           ))}
         </nav>
       </header>
-      <main className="app-main">
+      <main className="app-main" id="main-content" tabIndex={-1}>
         <Outlet />
       </main>
     </div>
