@@ -48,10 +48,20 @@ will grow with the project; right now it reflects what actually exists, not the 
   `Status` so the database enforces valid values, not just the UI. `src/api/invoices.js` now
   calls it over HTTP; `src/api/client.js` is the small fetch wrapper behind that. As predicted,
   Context, the form, and the list needed zero changes to make this swap
+- The invoice table becomes real stacked cards below 640px, not a horizontally-scrolled table —
+  same markup, CSS-only transform, using the `data-label` attributes set on every cell back on
+  Day 2 for exactly this
+- The line-item editor now has actual visible field labels (a column header row at ≥640px, a
+  label above each stacked field below it) instead of relying on placeholder text, which
+  disappears the moment a field has a value
+- A skip-to-content link (first tab stop, visible only when focused) and a consistent
+  `:focus-visible` outline across every interactive element — verified by literally tabbing
+  through the app with Playwright, not just eyeballing it
+- Verified at 375px, 768px, and 1440px with real screenshots
 
 ## Coming next
 
-A responsive pass (table becomes cards under 768px) → deploy.
+Deploy.
 
 ## Running it locally
 
@@ -125,3 +135,12 @@ production billing system.
 - **Totals are computed, never stored** — in the database or anywhere else. If asked when you
   *would* store them: once an invoice is sent and the historical figure must stay fixed even if
   a VAT rate changes later. Not needed at this stage.
+- **The mobile card layout is the same `<table>`, restyled — not a second component.** Every
+  `<td>` already carried a `data-label` attribute from Day 2. Below 640px, `display: block` on
+  the table elements plus `content: attr(data-label)` on a `::before` turns rows into cards with
+  zero duplicated markup and no risk of the table and card views drifting apart.
+- **The skip link needed `tabIndex={-1}` on its target, not just a matching `id`.** A same-page
+  anchor link scrolls to the target regardless, but a plain `<main>` isn't focusable, so without
+  it keyboard focus silently fell back to `<body>` — the link looked like it worked but didn't
+  actually move focus, which only showed up by checking `document.activeElement`, not by looking
+  at the page.
