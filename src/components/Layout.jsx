@@ -2,8 +2,10 @@ import { NavLink, Outlet } from 'react-router-dom'
 
 const NAV_ITEMS = [
   { to: '/', label: 'Dashboard', end: true },
-  { to: '/invoices', label: 'Invoices' },
-  { to: '/invoices/new', label: 'New invoice' },
+  // end: true on both — otherwise '/invoices' prefix-matches '/invoices/new'
+  // (and any invoice detail/edit route) and two nav items light up at once.
+  { to: '/invoices', label: 'Invoices', end: true },
+  { to: '/invoices/new', label: 'New invoice', end: true },
 ]
 
 export default function Layout() {
@@ -13,7 +15,12 @@ export default function Layout() {
         Skip to content
       </a>
       <header className="app-header">
-        <span className="app-brand">kevytlasku</span>
+        <span className="app-brand">
+          <span className="app-brand-mark" aria-hidden="true">
+            kL
+          </span>
+          kevytlasku
+        </span>
         <nav className="app-nav" aria-label="Main navigation">
           {NAV_ITEMS.map((item) => (
             <NavLink key={item.to} to={item.to} end={item.end}>
