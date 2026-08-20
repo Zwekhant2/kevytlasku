@@ -1,5 +1,6 @@
 using Dapper;
 using Microsoft.Data.Sqlite;
+using System.Linq;
 
 namespace Api;
 
@@ -14,6 +15,7 @@ record InvoiceRow(
     string? ClientBusinessId,
     string? ClientEmail,
     string? ClientAddress,
+    string? Description,
     string IssueDate,
     string DueDate,
     long PaymentTermDays,
@@ -55,6 +57,7 @@ public static class InvoiceStore
                 ClientBusinessId TEXT,
                 ClientEmail      TEXT,
                 ClientAddress    TEXT,
+                Description      TEXT,
                 IssueDate        TEXT NOT NULL,
                 DueDate          TEXT NOT NULL,
                 PaymentTermDays  INTEGER NOT NULL DEFAULT 14,
@@ -76,6 +79,16 @@ public static class InvoiceStore
             """
         );
 
+        // CREATE TABLE IF NOT EXISTS is a no-op against an already-deployed
+        // database, so a column added after go-live (like this one) needs
+        // its own migration rather than relying on the schema above.
+        var hasDescriptionColumn = db.Query("PRAGMA table_info(Invoices)")
+            .Any(column => (string)column.name == "Description");
+        if (!hasDescriptionColumn)
+        {
+            db.Execute("ALTER TABLE Invoices ADD COLUMN Description TEXT;");
+        }
+
         var isEmpty = db.ExecuteScalar<long>("SELECT COUNT(*) FROM Invoices") == 0;
         if (isEmpty)
         {
@@ -87,14 +100,14 @@ public static class InvoiceStore
     {
         using var tx = db.BeginTransaction();
 
-        (string id, int number, string name, string businessId, string email, string address, string issued, string due, string status)[] invoices =
+        (string id, int number, string name, string businessId, string email, string address, string description, string issued, string due, string status)[] invoices =
         [
-            ("inv_001", 1001, "Rakennus Virtanen Oy", "1234567-8", "laskut@virtanen.fi", "Mannerheimintie 12, 00100 Helsinki", "2026-07-20", "2026-08-03", "paid"),
-            ("inv_002", 1002, "Kahvila Aromi Ky", "2345678-9", "talous@aromikahvila.fi", "Aleksanterinkatu 5, 00170 Helsinki", "2026-08-01", "2026-08-15", "sent"),
-            ("inv_003", 1003, "Studio Valo Oy", "3456789-0", "laskutus@studiovalo.fi", "Fredrikinkatu 33, 00120 Helsinki", "2026-07-05", "2026-07-19", "overdue"),
-            ("inv_004", 1004, "Pieni Puutarha Oy", "4567890-1", "info@pienipuutarha.fi", "Puistotie 8, 02100 Espoo", "2026-08-12", "2026-08-26", "draft"),
-            ("inv_005", 1005, "Kielikoulu Lingua", "5678901-2", "laskut@lingua.fi", "Yliopistonkatu 2, 33100 Tampere", "2026-06-15", "2026-06-29", "paid"),
-            ("inv_006", 1006, "Rakennus Virtanen Oy", "1234567-8", "laskut@virtanen.fi", "Mannerheimintie 12, 00100 Helsinki", "2026-08-10", "2026-08-24", "sent"),
+            ("inv_001", 1001, "Rakennus Virtanen Oy", "1234567-8", "laskut@virtanen.fi", "Mannerheimintie 12, 00100 Helsinki", "Sähkötyöt, heinäkuu", "2026-07-20", "2026-08-03", "paid"),
+            ("inv_002", 1002, "Kahvila Aromi Ky", "2345678-9", "talous@aromikahvila.fi", "Aleksanterinkatu 5, 00170 Helsinki", "Verkkosivun ylläpito ja tarvikkeet, elokuu", "2026-08-01", "2026-08-15", "sent"),
+            ("inv_003", 1003, "Studio Valo Oy", "3456789-0", "laskutus@studiovalo.fi", "Fredrikinkatu 33, 00120 Helsinki", "Kuvauspäivä, studiovuokra", "2026-07-05", "2026-07-19", "overdue"),
+            ("inv_004", 1004, "Pieni Puutarha Oy", "4567890-1", "info@pienipuutarha.fi", "Puistotie 8, 02100 Espoo", "Pihasuunnittelu ja taimet", "2026-08-12", "2026-08-26", "draft"),
+            ("inv_005", 1005, "Kielikoulu Lingua", "5678901-2", "laskut@lingua.fi", "Yliopistonkatu 2, 33100 Tampere", "Suomen kielen kurssimateriaali", "2026-06-15", "2026-06-29", "paid"),
+            ("inv_006", 1006, "Rakennus Virtanen Oy", "1234567-8", "laskut@virtanen.fi", "Mannerheimintie 12, 00100 Helsinki", "Sähkötyöt, jatko elokuulle", "2026-08-10", "2026-08-24", "sent"),
         ];
 
         foreach (var inv in invoices)
@@ -103,10 +116,10 @@ public static class InvoiceStore
             // field names), so project into an anonymous object first.
             db.Execute(
                 """
-                INSERT INTO Invoices (Id, InvoiceNumber, ClientName, ClientBusinessId, ClientEmail, ClientAddress, IssueDate, DueDate, PaymentTermDays, Status, ServiceFeeRate)
-                VALUES (@id, @number, @name, @businessId, @email, @address, @issued, @due, 14, @status, 1.9)
+                INSERT INTO Invoices (Id, InvoiceNumber, ClientName, ClientBusinessId, ClientEmail, ClientAddress, Description, IssueDate, DueDate, PaymentTermDays, Status, ServiceFeeRate)
+                VALUES (@id, @number, @name, @businessId, @email, @address, @description, @issued, @due, 14, @status, 1.9)
                 """,
-                new { inv.id, inv.number, inv.name, inv.businessId, inv.email, inv.address, inv.issued, inv.due, inv.status },
+                new { inv.id, inv.number, inv.name, inv.businessId, inv.email, inv.address, inv.description, inv.issued, inv.due, inv.status },
                 tx);
         }
 
@@ -138,6 +151,7 @@ public static class InvoiceStore
             row.Id,
             row.InvoiceNumber,
             new Client(row.ClientName, row.ClientBusinessId, row.ClientEmail, row.ClientAddress),
+            row.Description,
             row.IssueDate,
             row.DueDate,
             row.PaymentTermDays,
@@ -149,7 +163,7 @@ public static class InvoiceStore
     public static async Task<List<Invoice>> GetAllAsync(SqliteConnection db)
     {
         var invoiceRows = (await db.QueryAsync<InvoiceRow>(
-            "SELECT Id, InvoiceNumber, ClientName, ClientBusinessId, ClientEmail, ClientAddress, IssueDate, DueDate, PaymentTermDays, Status, ServiceFeeRate FROM Invoices ORDER BY IssueDate DESC"
+            "SELECT Id, InvoiceNumber, ClientName, ClientBusinessId, ClientEmail, ClientAddress, Description, IssueDate, DueDate, PaymentTermDays, Status, ServiceFeeRate FROM Invoices ORDER BY IssueDate DESC"
         )).ToList();
 
         var lineItemRows = (await db.QueryAsync<LineItemRow>(
@@ -163,7 +177,7 @@ public static class InvoiceStore
     public static async Task<Invoice?> GetByIdAsync(SqliteConnection db, string id)
     {
         var row = await db.QuerySingleOrDefaultAsync<InvoiceRow>(
-            "SELECT Id, InvoiceNumber, ClientName, ClientBusinessId, ClientEmail, ClientAddress, IssueDate, DueDate, PaymentTermDays, Status, ServiceFeeRate FROM Invoices WHERE Id = @id",
+            "SELECT Id, InvoiceNumber, ClientName, ClientBusinessId, ClientEmail, ClientAddress, Description, IssueDate, DueDate, PaymentTermDays, Status, ServiceFeeRate FROM Invoices WHERE Id = @id",
             new { id });
 
         if (row is null) return null;
@@ -182,13 +196,13 @@ public static class InvoiceStore
 
         await db.ExecuteAsync(
             """
-            INSERT INTO Invoices (Id, InvoiceNumber, ClientName, ClientBusinessId, ClientEmail, ClientAddress, IssueDate, DueDate, PaymentTermDays, Status, ServiceFeeRate)
-            VALUES (@Id, @InvoiceNumber, @Name, @BusinessId, @Email, @Address, @IssueDate, @DueDate, @PaymentTermDays, @Status, @ServiceFeeRate)
+            INSERT INTO Invoices (Id, InvoiceNumber, ClientName, ClientBusinessId, ClientEmail, ClientAddress, Description, IssueDate, DueDate, PaymentTermDays, Status, ServiceFeeRate)
+            VALUES (@Id, @InvoiceNumber, @Name, @BusinessId, @Email, @Address, @Description, @IssueDate, @DueDate, @PaymentTermDays, @Status, @ServiceFeeRate)
             """,
             new
             {
                 Id = id, input.InvoiceNumber, input.Client.Name, input.Client.BusinessId, input.Client.Email, input.Client.Address,
-                input.IssueDate, input.DueDate, input.PaymentTermDays, input.Status, input.ServiceFeeRate,
+                input.Description, input.IssueDate, input.DueDate, input.PaymentTermDays, input.Status, input.ServiceFeeRate,
             },
             tx);
 
@@ -206,14 +220,15 @@ public static class InvoiceStore
             """
             UPDATE Invoices SET
                 InvoiceNumber = @InvoiceNumber, ClientName = @Name, ClientBusinessId = @BusinessId,
-                ClientEmail = @Email, ClientAddress = @Address, IssueDate = @IssueDate, DueDate = @DueDate,
+                ClientEmail = @Email, ClientAddress = @Address, Description = @Description,
+                IssueDate = @IssueDate, DueDate = @DueDate,
                 PaymentTermDays = @PaymentTermDays, Status = @Status, ServiceFeeRate = @ServiceFeeRate
             WHERE Id = @Id
             """,
             new
             {
                 Id = id, input.InvoiceNumber, input.Client.Name, input.Client.BusinessId, input.Client.Email, input.Client.Address,
-                input.IssueDate, input.DueDate, input.PaymentTermDays, input.Status, input.ServiceFeeRate,
+                input.Description, input.IssueDate, input.DueDate, input.PaymentTermDays, input.Status, input.ServiceFeeRate,
             },
             tx);
 

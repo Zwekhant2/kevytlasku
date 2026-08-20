@@ -46,6 +46,7 @@ function InvoiceFormFields({ existing }) {
   const isEdit = Boolean(existing)
 
   const [client, setClient] = useState(existing?.client ?? EMPTY_CLIENT)
+  const [description, setDescription] = useState(existing?.description ?? '')
   const [issueDate, setIssueDate] = useState(existing?.issueDate ?? todayIso())
   const [paymentTermDays, setPaymentTermDays] = useState(existing?.paymentTermDays ?? 14)
   const [status, setStatus] = useState(existing?.status ?? 'draft')
@@ -87,6 +88,7 @@ function InvoiceFormFields({ existing }) {
     const payload = {
       invoiceNumber: existing?.invoiceNumber ?? nextInvoiceNumber(),
       client,
+      description: description.trim() || null,
       issueDate,
       dueDate,
       paymentTermDays: toNumber(paymentTermDays),
@@ -133,6 +135,22 @@ function InvoiceFormFields({ existing }) {
             <label className="field field--wide">
               Address
               <input className="input" value={client.address} onChange={(e) => updateClient('address', e.target.value)} />
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset className="form-section">
+          <legend>Description</legend>
+          <div className="field-grid">
+            <label className="field field--wide">
+              Message to client
+              <textarea
+                className="input"
+                rows={2}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="What this invoice is for, e.g. &ldquo;Website maintenance, August 2026&rdquo;"
+              />
             </label>
           </div>
         </fieldset>

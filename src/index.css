@@ -812,6 +812,16 @@ button {
   color: var(--accent);
 }
 
+.form-hint {
+  margin: 0 0 12px;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+textarea.input {
+  resize: vertical;
+}
+
 .field-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -1095,6 +1105,22 @@ button {
   font-weight: 600;
 }
 
+.invoice-detail-description {
+  margin: 0;
+  padding: 12px 14px;
+  background: var(--paper-2);
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  color: var(--ink-2);
+  white-space: pre-wrap;
+}
+
+.invoice-detail-parties {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
 .invoice-detail-client {
   font-size: 14px;
   line-height: 1.6;
@@ -1125,6 +1151,15 @@ button {
 }
 
 @media (min-width: 640px) {
+  .invoice-detail-parties {
+    flex-direction: row;
+    gap: 32px;
+  }
+
+  .invoice-detail-parties > * {
+    flex: 1;
+  }
+
   .invoice-detail-header {
     flex-direction: row;
     align-items: center;

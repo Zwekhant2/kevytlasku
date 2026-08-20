@@ -18,6 +18,7 @@ var app = builder.Build();
 app.UseCors();
 
 InvoiceStore.Initialize();
+SettingsStore.Initialize();
 
 app.MapGet("/api/invoices", async () =>
 {
@@ -44,6 +45,18 @@ app.MapPut("/api/invoices/{id}", async (string id, InvoiceInput input) =>
     using var db = InvoiceStore.OpenConnection();
     var updated = await InvoiceStore.UpdateAsync(db, id, input);
     return updated is not null ? Results.Ok(updated) : Results.NotFound(new { message = $"Invoice {id} not found" });
+});
+
+app.MapGet("/api/settings", async () =>
+{
+    using var db = InvoiceStore.OpenConnection();
+    return await SettingsStore.GetAsync(db);
+});
+
+app.MapPut("/api/settings", async (Settings input) =>
+{
+    using var db = InvoiceStore.OpenConnection();
+    return await SettingsStore.UpdateAsync(db, input);
 });
 
 app.Run();

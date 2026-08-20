@@ -1,7 +1,9 @@
 import { Link, useParams } from 'react-router-dom'
 import { useInvoices } from '../context/InvoiceContext'
+import { useSettings } from '../context/SettingsContext'
 import { lineNet } from '../lib/calc'
 import { formatCurrency, formatDate } from '../lib/format'
+import { referenceNumber } from '../lib/reference'
 import StatusBadge from '../components/StatusBadge'
 import TotalsPanel from '../components/TotalsPanel'
 import ErrorMessage from '../components/ErrorMessage'
@@ -9,6 +11,7 @@ import ErrorMessage from '../components/ErrorMessage'
 export default function InvoiceDetail() {
   const { id } = useParams()
   const { invoices, loading } = useInvoices()
+  const { settings } = useSettings()
 
   if (loading) {
     return <p className="list-status">Loading invoice…</p>
@@ -50,12 +53,24 @@ export default function InvoiceDetail() {
           </div>
         </header>
 
-        <div className="invoice-detail-client">
-          <p className="invoice-detail-label">Bill to</p>
-          <p className="invoice-detail-client-name">{invoice.client.name}</p>
-          {invoice.client.businessId && <p>Y-tunnus {invoice.client.businessId}</p>}
-          {invoice.client.address && <p>{invoice.client.address}</p>}
-          {invoice.client.email && <p>{invoice.client.email}</p>}
+        {invoice.description && <p className="invoice-detail-description">{invoice.description}</p>}
+
+        <div className="invoice-detail-parties">
+          <div className="invoice-detail-client">
+            <p className="invoice-detail-label">Bill to</p>
+            <p className="invoice-detail-client-name">{invoice.client.name}</p>
+            {invoice.client.businessId && <p>Y-tunnus {invoice.client.businessId}</p>}
+            {invoice.client.address && <p>{invoice.client.address}</p>}
+            {invoice.client.email && <p>{invoice.client.email}</p>}
+          </div>
+
+          <div className="invoice-detail-client">
+            <p className="invoice-detail-label">Pay to</p>
+            <p className="invoice-detail-client-name">{settings?.companyName ?? 'Your company'}</p>
+            {settings?.iban && <p>IBAN {settings.iban}</p>}
+            {settings?.bic && <p>BIC {settings.bic}</p>}
+            <p>Reference {referenceNumber(invoice.invoiceNumber)}</p>
+          </div>
         </div>
 
         <div className="invoice-table-scroll">

@@ -6,6 +6,7 @@ const NAV_ITEMS = [
   // (and any invoice detail/edit route) and two nav items light up at once.
   { to: '/invoices', label: 'Invoices', end: true },
   { to: '/invoices/new', label: 'New invoice', end: true },
+  { to: '/settings', label: 'Settings', end: true },
 ]
 
 export default function Layout() {

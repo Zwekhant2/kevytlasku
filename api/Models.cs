@@ -12,6 +12,7 @@ public record Invoice(
     string Id,
     long InvoiceNumber,
     Client Client,
+    string? Description,
     string IssueDate,
     string DueDate,
     long PaymentTermDays,
@@ -25,6 +26,7 @@ public record Invoice(
 public record InvoiceInput(
     long InvoiceNumber,
     Client Client,
+    string? Description,
     string IssueDate,
     string DueDate,
     long PaymentTermDays,
@@ -32,3 +34,7 @@ public record InvoiceInput(
     List<LineItem> LineItems,
     double ServiceFeeRate
 );
+
+// Single-row profile for the entrepreneur issuing invoices — shown on every
+// invoice's "Pay to" panel so clients know where to send payment.
+public record Settings(string CompanyName, string? Iban, string? Bic);
