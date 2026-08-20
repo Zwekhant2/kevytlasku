@@ -385,10 +385,15 @@ button {
 
 .invoice-table tbody tr {
   transition: background 0.12s var(--ease);
+  cursor: pointer;
 }
 
 .invoice-table tbody tr:hover {
   background: var(--paper-2);
+}
+
+.invoice-table tbody tr:active {
+  background: var(--paper-3);
 }
 
 .invoice-table tbody tr:last-child td {
