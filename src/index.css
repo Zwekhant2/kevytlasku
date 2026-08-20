@@ -34,6 +34,29 @@ h3 {
   margin: 0 0 8px;
 }
 
+/* Visible only when focused, so keyboard users can jump past the nav
+   without it taking up space or being seen by anyone else. */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  z-index: 200;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 10px 16px;
+  border-radius: 0 0 6px 0;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 .app-shell {
   min-height: 100svh;
   display: flex;
@@ -132,12 +155,6 @@ button {
   width: 100%;
 }
 
-.input:focus,
-.select:focus {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
-}
-
 .list-controls .input {
   width: 100%;
 }
@@ -206,8 +223,6 @@ button {
 }
 
 /* ─── Invoice table ───────────────────────────────────────────── */
-/* Temporary mobile treatment: horizontal scroll so every column stays
-   reachable. Day 7 replaces this with real stacked cards below 768px. */
 .invoice-table-scroll {
   overflow-x: auto;
   border: 1px solid var(--border);
@@ -244,6 +259,73 @@ button {
 .invoice-table .amount-cell {
   text-align: right;
   font-variant-numeric: tabular-nums;
+}
+
+/* A seven-column table is unusable at 375px — below 640px each row becomes
+   its own card instead of a horizontally-scrolled table. The data-label
+   attributes on every <td> (set back on Day 2) are what makes this a
+   CSS-only transform: same markup, restyled. */
+@media screen and (max-width: 639px) {
+  .invoice-table-scroll {
+    overflow: visible;
+    border: none;
+  }
+
+  .invoice-table {
+    min-width: 0;
+  }
+
+  .invoice-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .invoice-table,
+  .invoice-table tbody,
+  .invoice-table tr {
+    display: block;
+    width: 100%;
+  }
+
+  .invoice-table tr {
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 4px 14px;
+    margin-bottom: 12px;
+  }
+
+  .invoice-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    text-align: right;
+  }
+
+  .invoice-table tr:last-child {
+    margin-bottom: 0;
+  }
+
+  .invoice-table td:last-child {
+    border-bottom: none;
+  }
+
+  .invoice-table td::before {
+    content: attr(data-label);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink-2);
+    text-align: left;
+    flex-shrink: 0;
+  }
 }
 
 /* ─── Empty / error / loading states ─────────────────────────── */
@@ -331,6 +413,10 @@ button {
   margin: 0;
 }
 
+.line-item-header {
+  display: none;
+}
+
 .line-item-row {
   display: grid;
   grid-template-columns: 1fr;
@@ -341,10 +427,43 @@ button {
   background: var(--paper);
 }
 
+.li-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.li-field-label {
+  font-size: 11px;
+  color: var(--ink-2);
+}
+
 @media (min-width: 640px) {
+  .line-item-header {
+    display: grid;
+    grid-template-columns: 2fr 70px 70px 110px 130px 32px;
+    gap: 8px;
+    padding: 0 12px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--ink-2);
+  }
+
   .line-item-row {
     grid-template-columns: 2fr 70px 70px 110px 130px 32px;
     align-items: center;
+  }
+
+  /* The header row above already labels each column, so the per-field
+     label collapses out of the layout — .li-field itself must not become a
+     grid item, so its <input> can be the direct (and only) grid child. */
+  .li-field {
+    display: contents;
+  }
+
+  .li-field-label {
+    display: none;
   }
 }
 
@@ -357,11 +476,18 @@ button {
   background: none;
   border: 1px solid var(--border);
   border-radius: 6px;
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   color: var(--ink-2);
   cursor: pointer;
   justify-self: end;
+}
+
+@media (min-width: 640px) {
+  .li-remove {
+    width: 32px;
+    height: 32px;
+  }
 }
 
 .li-remove:hover {
