@@ -1106,10 +1106,6 @@ button {
   margin: 0 0 2px;
 }
 
-.detail-line-items {
-  min-width: 560px;
-}
-
 .invoice-detail-totals {
   display: flex;
   justify-content: flex-end;
@@ -1128,6 +1124,15 @@ button {
 
   .invoice-detail-totals .totals-panel {
     width: 320px;
+  }
+
+  /* Below 640px the mobile card transform for .invoice-table needs
+     min-width: 0 to work — this rule was previously unconditional and,
+     coming later in the file, silently overrode that reset regardless of
+     viewport, forcing the line-items table to stay 560px wide and overflow
+     the screen on mobile with no way to scroll to the cut-off columns. */
+  .detail-line-items {
+    min-width: 560px;
   }
 }
 
