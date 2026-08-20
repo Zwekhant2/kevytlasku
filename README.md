@@ -7,7 +7,7 @@ through a service that takes a percentage-based fee per invoice, without running
 company. Create an invoice, track its status, and see exactly what you'd be paid after Finnish
 VAT and that service fee.
 
-**Live demo:** _deploying — link goes here_
+**Live demo:** https://kevytlasku.vercel.app
 **Repo:** https://github.com/Zwekhant2/kevytlasku
 
 ## Run it locally
