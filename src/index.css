@@ -2,17 +2,39 @@
    layout for wider screens. Plain CSS on purpose — no framework. */
 
 :root {
-  --ink: #16181f;
-  --ink-2: #565b66;
+  --ink: #101322;
+  --ink-2: #565d72;
+  --ink-3: #9298ab;
   --paper: #ffffff;
-  --paper-2: #f5f6f8;
-  --border: #e2e4e9;
-  --accent: #0b5fff;
+  --paper-2: #f6f7fb;
+  --paper-3: #eef0f6;
+  --border: #e5e7f0;
+  --border-strong: #d3d6e3;
+
+  --accent: #4f46e5;
+  --accent-hover: #4338ca;
   --accent-ink: #ffffff;
-  --danger: #c0392b;
-  --success: #1f8a4c;
-  --font: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  --accent-soft: #eef1fd;
+
+  --danger: #dc2626;
+  --danger-soft: #fef2f2;
+  --success: #059669;
+  --success-soft: #ecfdf5;
+  --info: #1d4ed8;
+  --info-soft: #eff4ff;
+
+  --font: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 16px;
+
+  --shadow-xs: 0 1px 2px rgba(16, 19, 34, 0.05);
+  --shadow-sm: 0 1px 3px rgba(16, 19, 34, 0.06), 0 4px 10px -4px rgba(16, 19, 34, 0.06);
+  --shadow-md: 0 8px 24px -6px rgba(16, 19, 34, 0.12), 0 2px 8px -2px rgba(16, 19, 34, 0.06);
+
+  --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
 }
 
 * {
@@ -23,8 +45,12 @@ body {
   margin: 0;
   font-family: var(--font);
   color: var(--ink);
-  background: var(--paper-2);
+  background: var(--paper-3);
+  background-image: radial-gradient(circle at 1px 1px, rgba(16, 19, 34, 0.05) 1px, transparent 0);
+  background-size: 22px 22px;
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 h1,
@@ -32,6 +58,8 @@ h2,
 h3 {
   color: var(--ink);
   margin: 0 0 8px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
 /* Visible only when focused, so keyboard users can jump past the nav
@@ -55,6 +83,7 @@ h3 {
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+  border-radius: 4px;
 }
 
 .app-shell {
@@ -64,43 +93,78 @@ h3 {
 }
 
 .app-header {
-  background: var(--paper);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border);
-  padding: 12px 16px;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
 .app-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-weight: 800;
+  font-size: 16px;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.app-brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: linear-gradient(155deg, var(--accent), #7c3aed);
+  color: #fff;
+  font-family: var(--mono);
   font-weight: 700;
-  font-size: 18px;
+  font-size: 12px;
+  letter-spacing: -0.02em;
+  box-shadow: var(--shadow-xs);
+  flex-shrink: 0;
 }
 
 .app-nav {
   display: flex;
-  gap: 16px;
+  gap: 4px;
   flex-wrap: wrap;
 }
 
 .app-nav a {
   color: var(--ink-2);
   text-decoration: none;
-  font-size: 14px;
-  padding: 4px 0;
-  border-bottom: 2px solid transparent;
+  font-size: 13.5px;
+  font-weight: 500;
+  padding: 7px 12px;
+  border-radius: 999px;
+  transition: color 0.15s var(--ease), background 0.15s var(--ease);
+}
+
+.app-nav a:hover {
+  color: var(--ink);
+  background: var(--paper-3);
 }
 
 .app-nav a.active,
 .app-nav a[aria-current='page'] {
-  color: var(--ink);
-  border-bottom-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+  font-weight: 600;
 }
 
 .app-main {
   flex: 1;
-  padding: 20px 16px 40px;
-  max-width: 960px;
+  padding: 24px 16px 48px;
+  max-width: 1000px;
   width: 100%;
   margin: 0 auto;
 }
@@ -110,11 +174,11 @@ h3 {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 32px;
+    padding: 14px 32px;
   }
 
   .app-main {
-    padding: 32px 32px 56px;
+    padding: 40px 32px 64px;
   }
 }
 
@@ -126,13 +190,35 @@ button {
 }
 
 .button {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   text-decoration: none;
   background: var(--accent);
   color: var(--accent-ink);
-  padding: 8px 16px;
-  border-radius: 6px;
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
   border: none;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-xs);
+  transition: background 0.15s var(--ease), transform 0.15s var(--ease), box-shadow 0.15s var(--ease);
+}
+
+.button:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.button:active {
+  transform: translateY(0);
+}
+
+.button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 /* ─── List controls: search + status filter ─────────────────── */
@@ -140,19 +226,31 @@ button {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .input,
 .select {
-  padding: 8px 12px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
+  padding: 9px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
   font-size: 14px;
   font-family: inherit;
   background: var(--paper);
   color: var(--ink);
   width: 100%;
+  transition: border-color 0.15s var(--ease), box-shadow 0.15s var(--ease);
+}
+
+.input:hover,
+.select:hover {
+  border-color: var(--ink-3);
+}
+
+.input:focus-visible,
+.select:focus-visible {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 .list-controls .input {
@@ -163,20 +261,30 @@ button {
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px;
+  width: fit-content;
 }
 
 .status-filter button {
-  background: var(--paper);
-  border: 1px solid var(--border);
+  background: none;
+  border: none;
   border-radius: 999px;
   padding: 6px 14px;
   cursor: pointer;
   color: var(--ink-2);
+  font-weight: 500;
+  transition: background 0.15s var(--ease), color 0.15s var(--ease);
+}
+
+.status-filter button:hover {
+  color: var(--ink);
 }
 
 .status-filter button.active {
   background: var(--ink);
-  border-color: var(--ink);
   color: var(--paper);
 }
 
@@ -194,31 +302,42 @@ button {
 
 /* ─── Status badge ───────────────────────────────────────────── */
 .status-badge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 12px;
   font-weight: 600;
-  padding: 3px 10px;
+  padding: 4px 10px 4px 8px;
   border-radius: 999px;
   white-space: nowrap;
 }
 
+.status-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
 .status-badge--draft {
-  background: #eceef1;
+  background: var(--paper-3);
   color: var(--ink-2);
 }
 
 .status-badge--sent {
-  background: #e3edff;
-  color: #1650c4;
+  background: var(--info-soft);
+  color: var(--info);
 }
 
 .status-badge--paid {
-  background: #e2f6e9;
+  background: var(--success-soft);
   color: var(--success);
 }
 
 .status-badge--overdue {
-  background: #fbe4e1;
+  background: var(--danger-soft);
   color: var(--danger);
 }
 
@@ -226,7 +345,9 @@ button {
 .invoice-table-scroll {
   overflow-x: auto;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius);
+  background: var(--paper);
+  box-shadow: var(--shadow-sm);
 }
 
 .invoice-table {
@@ -239,16 +360,25 @@ button {
 .invoice-table th,
 .invoice-table td {
   text-align: left;
-  padding: 10px 14px;
+  padding: 13px 16px;
   border-bottom: 1px solid var(--border);
   font-size: 14px;
 }
 
 .invoice-table thead th {
-  font-size: 12px;
+  font-size: 11.5px;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--ink-2);
+  letter-spacing: 0.05em;
+  color: var(--ink-3);
+  background: var(--paper-2);
+}
+
+.invoice-table tbody tr {
+  transition: background 0.12s var(--ease);
+}
+
+.invoice-table tbody tr:hover {
   background: var(--paper-2);
 }
 
@@ -259,6 +389,20 @@ button {
 .invoice-table .amount-cell {
   text-align: right;
   font-variant-numeric: tabular-nums;
+  font-family: var(--mono);
+  font-weight: 500;
+}
+
+.invoice-table a {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+  font-family: var(--mono);
+}
+
+.invoice-table a:hover {
+  color: var(--accent-hover);
+  text-decoration: underline;
 }
 
 /* A seven-column table is unusable at 375px — below 640px each row becomes
@@ -269,6 +413,8 @@ button {
   .invoice-table-scroll {
     overflow: visible;
     border: none;
+    box-shadow: none;
+    background: none;
   }
 
   .invoice-table {
@@ -294,7 +440,8 @@ button {
   .invoice-table tr {
     background: var(--paper);
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
     padding: 4px 14px;
     margin-bottom: 12px;
   }
@@ -304,7 +451,7 @@ button {
     justify-content: space-between;
     align-items: center;
     gap: 12px;
-    padding: 8px 0;
+    padding: 9px 0;
     border-bottom: 1px solid var(--border);
     text-align: right;
   }
@@ -320,9 +467,11 @@ button {
   .invoice-table td::before {
     content: attr(data-label);
     font-size: 11px;
+    font-family: var(--font);
+    font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    color: var(--ink-2);
+    color: var(--ink-3);
     text-align: left;
     flex-shrink: 0;
   }
@@ -331,49 +480,69 @@ button {
 /* ─── Empty / error / loading states ─────────────────────────── */
 .list-status {
   color: var(--ink-2);
-  padding: 24px 0;
+  padding: 32px 0;
 }
 
 .empty-state {
   text-align: center;
-  padding: 48px 16px;
-  border: 1px dashed var(--border);
-  border-radius: 8px;
+  padding: 56px 16px;
+  border: 1.5px dashed var(--border-strong);
+  border-radius: var(--radius);
   background: var(--paper);
 }
 
+.empty-state-icon {
+  color: var(--ink-3);
+  margin-bottom: 12px;
+}
+
 .empty-state-title {
-  font-weight: 600;
+  font-weight: 700;
   margin: 0 0 6px;
+  font-size: 15px;
 }
 
 .empty-state-message {
   color: var(--ink-2);
-  margin: 0 0 16px;
+  margin: 0 0 18px;
 }
 
 .error-message {
-  border: 1px solid var(--danger);
-  background: #fdf0ef;
-  color: var(--danger);
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  border: 1px solid #fecaca;
+  background: var(--danger-soft);
+  color: #991b1b;
   padding: 16px;
-  border-radius: 8px;
+  border-radius: var(--radius);
+}
+
+.error-message-icon {
+  color: var(--danger);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.error-message p {
+  margin: 0;
 }
 
 .error-message button {
-  margin-top: 8px;
+  margin-top: 10px;
   background: var(--danger);
   color: #fff;
   border: none;
-  padding: 6px 14px;
-  border-radius: 6px;
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
+  font-weight: 600;
 }
 
 /* ─── Invoice form layout ────────────────────────────────────── */
 .form-note {
   color: var(--ink-2);
-  margin: 0 0 20px;
+  margin: 0 0 24px;
 }
 
 .form-layout {
@@ -397,7 +566,7 @@ button {
     width: 300px;
     flex-shrink: 0;
     position: sticky;
-    top: 16px;
+    top: 88px;
   }
 }
 
@@ -420,11 +589,17 @@ button {
 .line-item-row {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 8px;
-  padding: 12px;
+  gap: 10px;
+  padding: 14px;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--paper);
+  transition: border-color 0.15s var(--ease), box-shadow 0.15s var(--ease);
+}
+
+.line-item-row:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-xs);
 }
 
 .li-field {
@@ -435,7 +610,8 @@ button {
 
 .li-field-label {
   font-size: 11px;
-  color: var(--ink-2);
+  font-weight: 500;
+  color: var(--ink-3);
 }
 
 @media (min-width: 640px) {
@@ -443,11 +619,12 @@ button {
     display: grid;
     grid-template-columns: 2fr 70px 70px 110px 130px 32px;
     gap: 8px;
-    padding: 0 12px;
+    padding: 0 14px;
     font-size: 11px;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--ink-2);
+    letter-spacing: 0.05em;
+    color: var(--ink-3);
   }
 
   .line-item-row {
@@ -470,17 +647,19 @@ button {
 .li-quantity,
 .li-price {
   text-align: right;
+  font-family: var(--mono);
 }
 
 .li-remove {
   background: none;
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   width: 40px;
   height: 40px;
-  color: var(--ink-2);
+  color: var(--ink-3);
   cursor: pointer;
   justify-self: end;
+  transition: border-color 0.15s var(--ease), color 0.15s var(--ease), background 0.15s var(--ease);
 }
 
 @media (min-width: 640px) {
@@ -493,21 +672,28 @@ button {
 .li-remove:hover {
   border-color: var(--danger);
   color: var(--danger);
+  background: var(--danger-soft);
 }
 
 .button--ghost {
   align-self: flex-start;
   background: none;
-  border: 1px dashed var(--border);
+  border: 1.5px dashed var(--border-strong);
   color: var(--ink-2);
-  border-radius: 6px;
-  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  padding: 9px 16px;
   cursor: pointer;
+  font-weight: 500;
+  box-shadow: none;
+  transition: border-color 0.15s var(--ease), color 0.15s var(--ease), background 0.15s var(--ease);
 }
 
 .button--ghost:hover {
   border-color: var(--accent);
   color: var(--accent);
+  background: var(--accent-soft);
+  transform: none;
+  box-shadow: none;
 }
 
 /* ─── Totals panel ────────────────────────────────────────────── */
@@ -515,8 +701,9 @@ button {
   margin: 0;
   background: var(--paper);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 16px;
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow-sm);
 }
 
 .totals-row {
@@ -535,31 +722,37 @@ button {
 .totals-row dd {
   margin: 0;
   font-variant-numeric: tabular-nums;
+  font-family: var(--mono);
 }
 
 .totals-row--sub dt,
 .totals-row--sub dd {
-  font-size: 13px;
-  color: var(--ink-2);
+  font-size: 12.5px;
+  color: var(--ink-3);
 }
 
 .totals-row--strong {
   border-top: 1px solid var(--border);
   margin-top: 4px;
-  padding-top: 10px;
-  font-weight: 600;
+  padding-top: 12px;
+  font-weight: 700;
 }
 
 .totals-row--payout {
-  margin-top: 10px;
-  padding: 10px;
-  background: var(--paper-2);
-  border-radius: 6px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: var(--accent-soft);
+  border-radius: var(--radius-sm);
   font-weight: 700;
 }
 
 .totals-row--payout dt {
-  color: var(--ink);
+  color: var(--accent);
+}
+
+.totals-row--payout dd {
+  color: var(--accent);
+  font-size: 17px;
 }
 
 /* ─── Invoice form: client + dates sections ──────────────────── */
@@ -571,32 +764,34 @@ button {
 
 .form-section {
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 16px;
+  border-radius: var(--radius);
+  padding: 18px;
   margin: 0;
   background: var(--paper);
+  box-shadow: var(--shadow-sm);
 }
 
 .form-section legend {
   padding: 0 6px;
-  font-weight: 600;
-  font-size: 13px;
+  font-weight: 700;
+  font-size: 12.5px;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: var(--ink-2);
+  letter-spacing: 0.05em;
+  color: var(--accent);
 }
 
 .field-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 12px;
+  gap: 14px;
 }
 
 .field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
   font-size: 13px;
+  font-weight: 500;
   color: var(--ink-2);
 }
 
@@ -631,36 +826,46 @@ button {
 }
 
 .button--outline {
-  background: none;
+  background: var(--paper);
   color: var(--accent);
   border: 1.5px solid var(--accent);
+  box-shadow: none;
 }
 
 .button--outline:hover {
-  background: var(--accent);
-  color: var(--accent-ink);
+  background: var(--accent-soft);
+  color: var(--accent-hover);
+  border-color: var(--accent-hover);
 }
 
 /* ─── Dashboard summary cards ─────────────────────────────────── */
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
+  gap: 14px;
 }
 
 .summary-card {
   background: var(--paper);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 16px;
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.15s var(--ease), box-shadow 0.15s var(--ease);
+}
+
+.summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .summary-card-label {
-  margin: 0 0 6px;
+  margin: 0 0 8px;
   font-size: 12px;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--ink-2);
+  letter-spacing: 0.05em;
+  color: var(--ink-3);
 }
 
 .summary-card-value {
@@ -668,6 +873,8 @@ button {
   font-size: 26px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+  font-family: var(--mono);
+  letter-spacing: -0.01em;
 }
 
 .summary-card--danger .summary-card-value {
@@ -675,9 +882,9 @@ button {
 }
 
 .summary-card-hint {
-  margin: 4px 0 0;
+  margin: 6px 0 0;
   font-size: 12px;
-  color: var(--ink-2);
+  color: var(--ink-3);
 }
 
 @media (min-width: 640px) {
@@ -699,12 +906,18 @@ button {
   align-items: center;
   flex-wrap: wrap;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .invoice-detail-toolbar a:first-child {
   color: var(--ink-2);
   font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.invoice-detail-toolbar a:first-child:hover {
+  color: var(--accent);
 }
 
 .invoice-detail-actions {
@@ -715,18 +928,19 @@ button {
 .invoice-detail-sheet {
   background: var(--paper);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 20px;
+  border-radius: var(--radius-lg);
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 22px;
+  box-shadow: var(--shadow-md);
 }
 
 .invoice-detail-header {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding-bottom: 16px;
+  padding-bottom: 18px;
   border-bottom: 1px solid var(--border);
 }
 
@@ -734,6 +948,8 @@ button {
   display: inline-block;
   margin-right: 10px;
   font-size: 22px;
+  font-family: var(--mono);
+  letter-spacing: -0.02em;
 }
 
 .invoice-detail-dates {
@@ -756,13 +972,14 @@ button {
 .invoice-detail-label {
   margin: 0 0 4px;
   font-size: 12px;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--ink-2);
+  letter-spacing: 0.05em;
+  color: var(--accent);
 }
 
 .invoice-detail-client-name {
-  font-weight: 600;
+  font-weight: 700;
   font-size: 16px;
   margin: 0 0 2px;
 }
@@ -803,6 +1020,7 @@ button {
 
   body {
     background: #fff;
+    background-image: none;
   }
 
   .app-main {
@@ -813,11 +1031,13 @@ button {
   .invoice-detail-sheet {
     border: none;
     padding: 0;
+    box-shadow: none;
   }
 
   .invoice-table-scroll {
     overflow: visible;
     border: none;
+    box-shadow: none;
   }
 
   .detail-line-items {
@@ -827,5 +1047,6 @@ button {
   .invoice-detail-totals .totals-panel {
     border: none;
     padding: 0;
+    box-shadow: none;
   }
 }
