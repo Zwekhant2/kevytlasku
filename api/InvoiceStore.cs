@@ -25,7 +25,11 @@ record LineItemRow(string Id, string InvoiceId, string Description, double Quant
 
 public static class InvoiceStore
 {
-    private const string ConnectionString = "Data Source=kevytlasku.db";
+    // DB_PATH points at a Fly.io volume mount (/data) in production, so the
+    // database survives redeploys and restarts; falls back to a local file
+    // for `dotnet run`.
+    private static readonly string ConnectionString =
+        $"Data Source={Environment.GetEnvironmentVariable("DB_PATH") ?? "kevytlasku.db"}";
 
     public static SqliteConnection OpenConnection()
     {
