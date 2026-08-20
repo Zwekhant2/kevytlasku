@@ -30,7 +30,7 @@ export default function InvoiceList() {
   const hasFiltersActive = statusFilter !== 'all' || searchTerm.trim() !== ''
 
   return (
-    <section>
+    <section className="page-enter">
       <h1>Invoices</h1>
 
       <div className="list-controls">
@@ -56,7 +56,31 @@ export default function InvoiceList() {
         </div>
       </div>
 
-      {loading && <p className="list-status">Loading invoices…</p>}
+      {loading && (
+        <div className="invoice-table-scroll" aria-hidden="true">
+          <table className="invoice-table">
+            <thead>
+              <tr>
+                <th>Invoice</th>
+                <th>Client</th>
+                <th>Issued</th>
+                <th>Due</th>
+                <th>Status</th>
+                <th>Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <tr key={i}>
+                  <td colSpan={6}>
+                    <div className="skeleton skeleton-text" style={{ width: `${70 - i * 6}%`, height: 16 }} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {!loading && error && <ErrorMessage message={`Couldn't load invoices: ${error}`} onRetry={refresh} />}
 
