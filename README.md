@@ -37,19 +37,25 @@ will grow with the project; right now it reflects what actually exists, not the 
   state — the list, the form, and the detail page all read from the same place, so creating or
   editing an invoice is reflected everywhere immediately, no manual refetching
 - localStorage persistence, owned by the mock API itself (`src/api/invoices.js`) rather than by
-  Context — so Day 6 can swap the mock's internals for real HTTP calls to the .NET API without
-  touching Context, the form, or any other component
+  Context — so Day 6 could swap the mock's internals for real HTTP calls to the .NET API without
+  touching Context, the form, or any other component (and it didn't — see below)
 - Dashboard summary cards: outstanding (sent + overdue), paid this month, and a count per status
 - A full invoice detail view — client info, a per-line breakdown (qty, unit price, VAT rate, net),
   and the same `TotalsPanel` the form uses — plus a print stylesheet that hides the nav and
   toolbar and lets the invoice itself fill the page
+- A real backend: a .NET 8 minimal API (`/api`) over SQLite, using Dapper — two tables
+  (`Invoices`, `LineItems`), a foreign key with `ON DELETE CASCADE`, and a `CHECK` constraint on
+  `Status` so the database enforces valid values, not just the UI. `src/api/invoices.js` now
+  calls it over HTTP; `src/api/client.js` is the small fetch wrapper behind that. As predicted,
+  Context, the form, and the list needed zero changes to make this swap
 
 ## Coming next
 
-A small .NET 8 minimal API + SQLite for real persistence → responsive pass (table becomes cards
-under 768px) → deploy.
+A responsive pass (table becomes cards under 768px) → deploy.
 
 ## Running it locally
+
+Frontend:
 
 ```
 git clone https://github.com/Zwekhant2/kevytlasku.git
@@ -57,6 +63,18 @@ cd kevytlasku
 npm install
 npm run dev
 ```
+
+Backend (needs the [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)), in a second
+terminal:
+
+```
+cd api
+dotnet run
+```
+
+The API listens on `http://localhost:5200` and creates+seeds `api/kevytlasku.db` on first run —
+nothing to configure. The frontend defaults to that same URL; override it by setting
+`VITE_API_URL` in a `.env` file if you're pointing at a different API instance.
 
 Run the calculation tests:
 
@@ -96,3 +114,14 @@ production billing system.
 - **"Paid this month" is approximated from `issueDate`.** The data model doesn't have a separate
   "paid on" date, so this is a deliberate simplification, not an oversight — a real system would
   record the actual payment date and use that instead.
+- **Two flat tables, mapped by hand — no ORM.** `Invoices` and `LineItems` are joined and
+  reassembled into the nested shape the frontend expects with plain SQL and a `ToInvoice`
+  function (`api/InvoiceStore.cs`), not EF Core change-tracking or Dapper's multi-mapping. At
+  this size that's less machinery to explain, not less correctness.
+- **An update replaces an invoice's line items wholesale**, rather than diffing which rows were
+  added, changed, or removed. The form always sends the complete current set, never a partial
+  patch, so delete-then-reinsert inside one transaction is simpler and exactly as correct as a
+  diff would be here.
+- **Totals are computed, never stored** — in the database or anywhere else. If asked when you
+  *would* store them: once an invoice is sent and the historical figure must stay fixed even if
+  a VAT rate changes later. Not needed at this stage.
