@@ -1,6 +1,7 @@
 import { useReducer, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useInvoices } from '../context/InvoiceContext'
+import { useToast } from '../context/ToastContext'
 import { lineItemsReducer } from '../lib/lineItemsReducer'
 import { toNumber } from '../lib/toNumber'
 import { todayIso, addDays } from '../lib/format'
@@ -41,6 +42,7 @@ export default function InvoiceForm() {
 function InvoiceFormFields({ existing }) {
   const navigate = useNavigate()
   const { addInvoice, editInvoice, nextInvoiceNumber } = useInvoices()
+  const { showToast } = useToast()
   const isEdit = Boolean(existing)
 
   const [client, setClient] = useState(existing?.client ?? EMPTY_CLIENT)
@@ -95,6 +97,7 @@ function InvoiceFormFields({ existing }) {
 
     try {
       const saved = isEdit ? await editInvoice(existing.id, payload) : await addInvoice(payload)
+      showToast(isEdit ? `Invoice #${saved.invoiceNumber} updated` : `Invoice #${saved.invoiceNumber} created`)
       navigate(`/invoices/${saved.id}`)
     } catch (err) {
       setSubmitError(err.message)
@@ -103,7 +106,7 @@ function InvoiceFormFields({ existing }) {
   }
 
   return (
-    <section>
+    <section className="page-enter">
       <h1>{isEdit ? `Edit invoice #${existing.invoiceNumber}` : 'New invoice'}</h1>
 
       <form className="invoice-form" onSubmit={handleSubmit}>
