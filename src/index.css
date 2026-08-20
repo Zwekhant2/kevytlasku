@@ -47,7 +47,14 @@
   box-sizing: border-box;
 }
 
+html {
+  width: 100%;
+  overflow-x: hidden;
+}
+
 body {
+  width: 100%;
+  overflow-x: hidden;
   margin: 0;
   font-family: var(--font);
   color: var(--ink);
@@ -94,6 +101,8 @@ h3 {
 }
 
 .app-shell {
+  width: 100%;
+  min-height: 100vh;
   min-height: 100svh;
   display: flex;
   flex-direction: column;
