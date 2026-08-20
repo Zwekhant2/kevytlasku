@@ -804,6 +804,7 @@ button {
 }
 
 .form-section legend {
+  margin-left: 14px;
   padding: 0 6px;
   font-weight: 700;
   font-size: 12.5px;
