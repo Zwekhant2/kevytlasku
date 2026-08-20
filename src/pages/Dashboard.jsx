@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useInvoices } from '../context/InvoiceContext'
+import { useCountUp } from '../hooks/useCountUp'
 import { invoiceTotals } from '../lib/calc'
 import { formatCurrency, formatMonthLabel, isSameMonth } from '../lib/format'
 import SummaryCard from '../components/SummaryCard'
@@ -32,8 +33,18 @@ export default function Dashboard() {
     return { counts, outstanding, paidThisMonth }
   }, [invoices])
 
-  if (loading) {
-    return <p className="list-status">Loading dashboard…</p>
+  // Hooks must run unconditionally every render, so these sit above the
+  // loading/error early returns below — each is a fixed, named value rather
+  // than a loop over STATUS_ORDER, since calling a hook inside a .map() is
+  // an easy way to break the rules of hooks even when the array length
+  // never changes.
+  const animatedOutstanding = useCountUp(summary.outstanding)
+  const animatedPaidThisMonth = useCountUp(summary.paidThisMonth)
+  const animatedCounts = {
+    draft: useCountUp(summary.counts.draft),
+    sent: useCountUp(summary.counts.sent),
+    paid: useCountUp(summary.counts.paid),
+    overdue: useCountUp(summary.counts.overdue),
   }
 
   if (error) {
@@ -41,25 +52,36 @@ export default function Dashboard() {
   }
 
   return (
-    <section>
+    <section className="page-enter">
       <h1>Dashboard</h1>
 
-      <div className="summary-grid">
-        <SummaryCard label="Outstanding" value={formatCurrency(summary.outstanding)} hint="Sent + overdue" />
-        <SummaryCard
-          label="Paid this month"
-          value={formatCurrency(summary.paidThisMonth)}
-          hint={formatMonthLabel()}
-        />
-        {STATUS_ORDER.map((status) => (
+      {loading ? (
+        <div className="summary-grid">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div className="summary-card" key={i} aria-hidden="true">
+              <div className="skeleton skeleton-text" style={{ width: '60%', height: 12 }} />
+              <div className="skeleton skeleton-text" style={{ width: '80%', height: 26, marginTop: 10 }} />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="summary-grid">
+          <SummaryCard label="Outstanding" value={formatCurrency(animatedOutstanding)} hint="Sent + overdue" />
           <SummaryCard
-            key={status}
-            label={status[0].toUpperCase() + status.slice(1)}
-            value={summary.counts[status]}
-            tone={status === 'overdue' ? 'danger' : undefined}
+            label="Paid this month"
+            value={formatCurrency(animatedPaidThisMonth)}
+            hint={formatMonthLabel()}
           />
-        ))}
-      </div>
+          {STATUS_ORDER.map((status) => (
+            <SummaryCard
+              key={status}
+              label={status[0].toUpperCase() + status.slice(1)}
+              value={Math.round(animatedCounts[status])}
+              tone={status === 'overdue' ? 'danger' : undefined}
+            />
+          ))}
+        </div>
+      )}
     </section>
   )
 }
