@@ -30,3 +30,6 @@ api/obj/
 *.db-shm
 *.db-wal
 .env
+
+.vercel
+.env*
