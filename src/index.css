@@ -795,17 +795,25 @@ button {
 }
 
 .form-section {
+  position: relative;
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 18px;
+  padding: 34px 18px 18px;
   margin: 0;
   background: var(--paper);
   box-shadow: var(--shadow-sm);
 }
 
+/* A native <legend> straddles the fieldset's border by default (half in,
+   half out) — position it absolutely instead, which takes it out of that
+   border-straddling layout entirely, so the label sits fully inside the
+   box like the rest of the app's section labels (e.g. "Bill to"). */
 .form-section legend {
-  margin-left: 14px;
-  padding: 0 6px;
+  position: absolute;
+  top: 16px;
+  left: 18px;
+  margin: 0;
+  padding: 0;
   font-weight: 700;
   font-size: 12.5px;
   text-transform: uppercase;
