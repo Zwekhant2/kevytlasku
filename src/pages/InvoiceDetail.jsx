@@ -21,7 +21,7 @@ export default function InvoiceDetail() {
   }
 
   return (
-    <section className="invoice-detail">
+    <section className="invoice-detail page-enter">
       <div className="invoice-detail-toolbar">
         <Link to="/invoices">&larr; Back to invoices</Link>
         <div className="invoice-detail-actions">
