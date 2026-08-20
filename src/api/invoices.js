@@ -1,178 +1,21 @@
-// Mock data layer, backed by localStorage so it survives a reload. Shaped
-// exactly like the real API will be (async functions returning promises,
-// never returning a live reference to internal state) so swapping this for
-// real fetch calls to the .NET API later is a drop-in replacement — nothing
-// that calls these functions has to change.
-
-const STORAGE_KEY = 'kevytlasku:invoices'
-const NETWORK_DELAY_MS = 150
-
-const seedInvoices = [
-  {
-    id: 'inv_001',
-    invoiceNumber: 1001,
-    client: {
-      name: 'Rakennus Virtanen Oy',
-      businessId: '1234567-8',
-      email: 'laskut@virtanen.fi',
-      address: 'Mannerheimintie 12, 00100 Helsinki',
-    },
-    issueDate: '2026-07-20',
-    dueDate: '2026-08-03',
-    paymentTermDays: 14,
-    status: 'paid',
-    lineItems: [
-      { id: 'li_1', description: 'Sähkötyöt, 2 päivää', quantity: 16, unit: 'h', unitPrice: 65, vatRate: 25.5 },
-    ],
-    serviceFeeRate: 1.9,
-  },
-  {
-    id: 'inv_002',
-    invoiceNumber: 1002,
-    client: {
-      name: 'Kahvila Aromi Ky',
-      businessId: '2345678-9',
-      email: 'talous@aromikahvila.fi',
-      address: 'Aleksanterinkatu 5, 00170 Helsinki',
-    },
-    issueDate: '2026-08-01',
-    dueDate: '2026-08-15',
-    paymentTermDays: 14,
-    status: 'sent',
-    lineItems: [
-      { id: 'li_1', description: 'Verkkosivun ylläpito, elokuu', quantity: 1, unit: 'kk', unitPrice: 180, vatRate: 25.5 },
-      { id: 'li_2', description: 'Leipomotarvikkeet', quantity: 12, unit: 'kpl', unitPrice: 8.5, vatRate: 14 },
-    ],
-    serviceFeeRate: 1.9,
-  },
-  {
-    id: 'inv_003',
-    invoiceNumber: 1003,
-    client: {
-      name: 'Studio Valo Oy',
-      businessId: '3456789-0',
-      email: 'laskutus@studiovalo.fi',
-      address: 'Fredrikinkatu 33, 00120 Helsinki',
-    },
-    issueDate: '2026-07-05',
-    dueDate: '2026-07-19',
-    paymentTermDays: 14,
-    status: 'overdue',
-    lineItems: [
-      { id: 'li_1', description: 'Kuvauspäivä, studiovuokra', quantity: 1, unit: 'pv', unitPrice: 420, vatRate: 25.5 },
-    ],
-    serviceFeeRate: 1.9,
-  },
-  {
-    id: 'inv_004',
-    invoiceNumber: 1004,
-    client: {
-      name: 'Pieni Puutarha Oy',
-      businessId: '4567890-1',
-      email: 'info@pienipuutarha.fi',
-      address: 'Puistotie 8, 02100 Espoo',
-    },
-    issueDate: '2026-08-12',
-    dueDate: '2026-08-26',
-    paymentTermDays: 14,
-    status: 'draft',
-    lineItems: [
-      { id: 'li_1', description: 'Pihasuunnittelu', quantity: 6, unit: 'h', unitPrice: 55, vatRate: 25.5 },
-      { id: 'li_2', description: 'Taimet', quantity: 20, unit: 'kpl', unitPrice: 6.9, vatRate: 14 },
-    ],
-    serviceFeeRate: 1.9,
-  },
-  {
-    id: 'inv_005',
-    invoiceNumber: 1005,
-    client: {
-      name: 'Kielikoulu Lingua',
-      businessId: '5678901-2',
-      email: 'laskut@lingua.fi',
-      address: 'Yliopistonkatu 2, 33100 Tampere',
-    },
-    issueDate: '2026-06-15',
-    dueDate: '2026-06-29',
-    paymentTermDays: 14,
-    status: 'paid',
-    lineItems: [
-      { id: 'li_1', description: 'Suomen kielen kurssimateriaali', quantity: 15, unit: 'kpl', unitPrice: 24, vatRate: 10 },
-    ],
-    serviceFeeRate: 1.9,
-  },
-  {
-    id: 'inv_006',
-    invoiceNumber: 1006,
-    client: {
-      name: 'Rakennus Virtanen Oy',
-      businessId: '1234567-8',
-      email: 'laskut@virtanen.fi',
-      address: 'Mannerheimintie 12, 00100 Helsinki',
-    },
-    issueDate: '2026-08-10',
-    dueDate: '2026-08-24',
-    paymentTermDays: 14,
-    status: 'sent',
-    lineItems: [{ id: 'li_1', description: 'Sähkötyöt, jatko', quantity: 8, unit: 'h', unitPrice: 65, vatRate: 25.5 }],
-    serviceFeeRate: 1.9,
-  },
-]
-
-function loadInvoices() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (raw) return JSON.parse(raw)
-  } catch {
-    // localStorage can be unavailable (private browsing, quota) — fall
-    // through to the seed data below, the mock still works for the session.
-  }
-  return seedInvoices
-}
-
-function persist(invoices) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(invoices))
-  } catch {
-    // best-effort; see loadInvoices
-  }
-}
-
-// Module state, seeded from localStorage once when this module first loads.
-// Every write below replaces this with a new array (never mutated in
-// place) and re-persists it, so this "mock database" survives a reload the
-// same way a real one would.
-let mockInvoices = loadInvoices()
-
-function delay(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms))
-}
+// Real calls to the .NET API (see /api). Every function here has the exact
+// same name and signature the localStorage-backed mock had through Day 5 —
+// that was the point of keeping persistence out of Context: nothing outside
+// this file changed to make this swap.
+import { apiClient } from './client'
 
 export async function getInvoices() {
-  await delay(NETWORK_DELAY_MS)
-  return [...mockInvoices]
+  return apiClient.get('/api/invoices')
 }
 
 export async function getInvoice(id) {
-  await delay(NETWORK_DELAY_MS)
-  const invoice = mockInvoices.find((inv) => inv.id === id)
-  if (!invoice) throw new Error(`Invoice ${id} not found`)
-  return { ...invoice }
+  return apiClient.get(`/api/invoices/${id}`)
 }
 
 export async function createInvoice(invoice) {
-  await delay(NETWORK_DELAY_MS)
-  const withId = { ...invoice, id: `inv_${crypto.randomUUID()}` }
-  mockInvoices = [withId, ...mockInvoices]
-  persist(mockInvoices)
-  return withId
+  return apiClient.post('/api/invoices', invoice)
 }
 
-export async function updateInvoice(id, patch) {
-  await delay(NETWORK_DELAY_MS)
-  const index = mockInvoices.findIndex((inv) => inv.id === id)
-  if (index === -1) throw new Error(`Invoice ${id} not found`)
-  const updated = { ...mockInvoices[index], ...patch }
-  mockInvoices = mockInvoices.map((inv, i) => (i === index ? updated : inv))
-  persist(mockInvoices)
-  return updated
+export async function updateInvoice(id, invoice) {
+  return apiClient.put(`/api/invoices/${id}`, invoice)
 }
