@@ -1201,6 +1201,7 @@ textarea.input {
   font-size: 14px;
   color: var(--ink-2);
   white-space: pre-wrap;
+  overflow-wrap: break-word;
 }
 
 .invoice-detail-parties {
