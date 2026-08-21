@@ -507,6 +507,11 @@ button {
     background: var(--paper);
     border: 1px solid var(--border);
     border-radius: var(--radius);
+    /* Table rows have their own background-painting rules that some mobile
+       browsers apply even after `display: block` above, ignoring
+       border-radius and leaving square corners visible outside the rounded
+       border. Forcing a clip here is the reliable cross-browser fix. */
+    overflow: hidden;
     box-shadow: var(--shadow-sm);
     padding: 4px 14px;
     margin-bottom: 12px;
@@ -1035,6 +1040,7 @@ textarea.input {
   background: var(--paper);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
+  overflow: hidden;
   padding: 20px 20px 4px;
   margin-bottom: 20px;
   box-shadow: var(--shadow-sm);
