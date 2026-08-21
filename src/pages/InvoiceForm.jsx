@@ -1,4 +1,4 @@
-import { useReducer, useState } from 'react'
+import { useLayoutEffect, useReducer, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useInvoices } from '../context/InvoiceContext'
 import { useToast } from '../context/ToastContext'
@@ -47,6 +47,7 @@ function InvoiceFormFields({ existing }) {
 
   const [client, setClient] = useState(existing?.client ?? EMPTY_CLIENT)
   const [description, setDescription] = useState(existing?.description ?? '')
+  const descriptionRef = useRef(null)
   const [issueDate, setIssueDate] = useState(existing?.issueDate ?? todayIso())
   const [paymentTermDays, setPaymentTermDays] = useState(existing?.paymentTermDays ?? 14)
   const [status, setStatus] = useState(existing?.status ?? 'draft')
@@ -59,6 +60,23 @@ function InvoiceFormFields({ existing }) {
   // paymentTermDays are the single source of truth, so it can't drift out of
   // sync with either of them.
   const dueDate = addDays(issueDate, toNumber(paymentTermDays))
+
+  // A fixed row count either wastes space for a one-line description or
+  // clips a longer one behind a scrollbar that's easy to miss on mobile.
+  // Growing the textarea to fit its content sidesteps both — runs before
+  // paint so there's no visible snap on mount when editing an invoice that
+  // already has a long description.
+  useLayoutEffect(() => {
+    const el = descriptionRef.current
+    if (!el) return
+    // box-sizing: border-box means the element's height must include its
+    // border, but scrollHeight only ever measures content + padding — so
+    // without adding the border back, the box is perpetually ~2px short
+    // and clips the last line by a sliver.
+    const { borderTopWidth, borderBottomWidth } = getComputedStyle(el)
+    el.style.height = 'auto'
+    el.style.height = `${el.scrollHeight + parseFloat(borderTopWidth) + parseFloat(borderBottomWidth)}px`
+  }, [description])
 
   function updateClient(field, value) {
     setClient((prev) => ({ ...prev, [field]: value }))
@@ -145,7 +163,8 @@ function InvoiceFormFields({ existing }) {
             <label className="field field--wide">
               Message to client
               <textarea
-                className="input"
+                ref={descriptionRef}
+                className="input input--autosize"
                 rows={2}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}

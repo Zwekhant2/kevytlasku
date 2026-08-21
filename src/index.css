@@ -872,6 +872,13 @@ textarea.input {
   resize: vertical;
 }
 
+/* Height is driven by JS to fit content, so the manual resize handle and
+   internal scrollbar would only fight with that instead of helping. */
+.input--autosize {
+  resize: none;
+  overflow: hidden;
+}
+
 .field-grid {
   display: grid;
   grid-template-columns: 1fr;
